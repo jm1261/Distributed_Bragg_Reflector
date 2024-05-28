@@ -1,0 +1,11 @@
+{
+    "width": 15,
+    "height": 27,
+    "dpi": 600,
+    "grid": "True",
+    "legend_loc": 0,
+    "legend_col": 1,
+    "legend_size": 10,
+    "axis_fontsize": 15,
+    "label_size": 10
+}
