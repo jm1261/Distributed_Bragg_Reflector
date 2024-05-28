@@ -1,0 +1,4352 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      -->
+<title>Bragg_Mirror</title>
+<meta name="generator" content="MATLAB 24.1">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2024-05-26">
+<meta name="DC.source" content="Bragg_Mirror.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style>
+</head>
+<body>
+<div class="content">
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#1">Multilayer Bragg Reflector Program</a>
+</li>
+<li>
+<a href="#2">Initial Parameters</a>
+</li>
+<li>
+<a href="#3">Calculations</a>
+</li>
+<li>
+<a href="#4">Set Indices</a>
+</li>
+<li>
+<a href="#5">Loop Wavelengths and Calculate Matrix</a>
+</li>
+<li>
+<a href="#6">Plot Output</a>
+</li>
+<li>
+<a href="#7">Output Logs to Text File</a>
+</li>
+<li>
+<a href="#8">Output Logs</a>
+</li>
+</ul>
+</div>
+<h2 id="1">Multilayer Bragg Reflector Program</h2>
+<pre class="codeinput">
+<span class="comment">% Benchmarking an older model in an attempt to rewrite this software in</span>
+<span class="comment">% Python and RCWA alternatives. The code was written in a "add-hoc" manner</span>
+<span class="comment">% such that there is little-to-no-readability in the original. This program</span>
+<span class="comment">% serves to fix this problem and then benchmark against the alternatives.</span>
+
+<span class="comment">% Clear all previous data</span>
+clear <span class="string">all</span>;
+</pre>
+<h2 id="2">Initial Parameters</h2>
+<pre class="codeinput">
+<span class="comment">% Here we set the initial parameters for the simulation, this includes the</span>
+<span class="comment">% refractive indices of the surrounding layers. This includes the cladding</span>
+<span class="comment">% index, the substrate index, and the effective index of the Bragg Mirror</span>
+<span class="comment">% pairs. Given that we are going to work layer-by-layer, it is fair to</span>
+<span class="comment">% assume that the effective index is 0. We can also set the cladding and</span>
+<span class="comment">% substrate layers to air, if we wish, with an index of 1. We can also se</span>
+<span class="comment">% the number of mirror pairs and even set the cavity wavelength that we</span>
+<span class="comment">% want to achieve so that we can get the layer thicknesses. Here, the first</span>
+<span class="comment">% refractive index (n_first) is that of the first layer of the pair, and</span>
+<span class="comment">% the second refractive index (n_second) is that of the second layer of the</span>
+<span class="comment">% pair. Note that the cavity refractive index (n_cavity) can be different.</span>
+<span class="comment">% We will also set the cavity layer index, this is the layer at which the</span>
+<span class="comment">% cavity occurs.</span>
+
+n_cladding = 1.0;
+n_substrate = 1.0;
+n_effective = 0.0;
+number_mirror_pairs = 14;
+cavity_wavelength = 750;
+n_first = 3.6;
+n_second = 3.34;
+n_cavity = 3.65;
+cavity_layer = 7;
+wavelength_i = 600;
+wavelength_f = 1000;
+wavelength_s = 1;
+</pre>
+<h2 id="3">Calculations</h2>
+<pre class="codeinput">
+<span class="comment">% Once we set the initial parameters, we can use the standard Bragg Mirror</span>
+<span class="comment">% equations to calculate the layer thicknesses that we expect to get the</span>
+<span class="comment">% Bragg response that we want. Note that I have included a commented-out</span>
+<span class="comment">% variable that allows us to set the thickness that we want too.</span>
+
+t_first = 54;
+t_second = 58;
+t_cavity = 1000;
+<span class="comment">%t_first = cavity_wavelength / (4 * n_first);</span>
+<span class="comment">%t_second = cavity_wavelength / (4 * n_second);</span>
+<span class="comment">%t_cavity = (cavity_wavelength / 2) / (n_cavity);</span>
+</pre>
+<h2 id="4">Set Indices</h2>
+<pre class="codeinput">
+<span class="comment">% Let's set up the index and thickness arrays for the Bragg stack. We will</span>
+<span class="comment">% loop through the mirror pairs and set the values for x, and x + 1, where</span>
+<span class="comment">% x is the first of the pair, and x + 1 is the second of the pair.</span>
+
+<span class="comment">% Preallocate arrays for refractive indices and thicknesses</span>
+n = zeros(1, 2 * number_mirror_pairs);
+t = zeros(1, 2 * number_mirror_pairs);
+
+<span class="comment">% Set the values for each layer</span>
+<span class="keyword">for</span> x = 1:2:(2 * number_mirror_pairs)
+    n(x) = n_first;
+    t(x) = t_first;
+    <span class="keyword">if</span> x + 1 &lt;= 2 * number_mirror_pairs
+        n(x + 1) = n_second;
+        t(x + 1) = t_second;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">% Set the cavity layer</span>
+n(cavity_layer) = n_cavity;
+t(cavity_layer) = t_cavity;
+</pre>
+<h2 id="5">Loop Wavelengths and Calculate Matrix</h2>
+<pre class="codeinput">
+<span class="comment">% The crux of this simulation is the transfer matrix calculation at each</span>
+<span class="comment">% layer interface for the entire wavelength range. Log the variables we</span>
+<span class="comment">% care about so we can see what's going on with the code.</span>
+
+<span class="comment">% Number of iterations for wavelength range</span>
+number_iterations = (wavelength_f - wavelength_i) / wavelength_s + 1;
+matrix_size = [2, 2];
+
+<span class="comment">% Preallocate logs</span>
+log_matrix = zeros(matrix_size(1), matrix_size(2), number_iterations);
+log_k0 = zeros(1, number_iterations);
+log_kc = zeros(1, number_iterations);
+log_ks = zeros(1, number_iterations);
+log_T = zeros(1, number_iterations);
+log_R = zeros(1, number_iterations);
+log_P = zeros(1, number_iterations);
+wavelength = zeros(1, number_iterations);
+
+<span class="comment">% Loop over wavelengths</span>
+<span class="keyword">for</span> m = 1:number_iterations
+    lambda = wavelength_i + (wavelength_s * (m - 1));
+    wavelength(m) = lambda;
+    k0 = 2 * pi / lambda;
+    log_k0(m) = k0;
+    M0 = eye(2);  <span class="comment">% Initialize M0 as the identity matrix</span>
+    <span class="keyword">for</span> x = 1:length(n)
+        refractive_index = n(x)^2 - n_effective^2;
+        kappa = k0 * sqrt(refractive_index);
+        kappa_t = kappa * t(x);
+        M = [cos(kappa_t), 1i * sin(kappa_t) / kappa; 1i * kappa * sin(kappa_t), cos(kappa_t)];
+        M0 = M0 * M;
+    <span class="keyword">end</span>
+    log_matrix(:, :, m) = M0;
+    kc = k0 * sqrt(n_cladding^2 - n_effective^2);
+    log_kc(m) = kc;
+    ks = k0 * sqrt(n_substrate^2 - n_effective^2);
+    log_ks(m) = ks;
+    transmission = 2 * ks / (ks * M0(1, 1) + kc * M0(2, 2) + ks * kc * M0(1, 2) + M0(2, 1));
+    reflection = (ks * M0(1, 1) - kc * M0(2, 2) + ks * kc * M0(1, 2) - M0(2, 1)) * transmission / (2 * ks);
+    phase = atan(real(transmission) / imag(transmission));
+    T = abs(transmission)^2;
+    log_T(m) = T;
+    R = abs(reflection)^2;
+    log_R(m) = R;
+    log_P(m) = phase;
+<span class="keyword">end</span>
+</pre>
+<h2 id="6">Plot Output</h2>
+<pre class="codeinput">figure(<span class="string">'Position'</span>, [100, 100, 1200, 1800]);  <span class="comment">% [left, bottom, width, height]</span>
+
+<span class="comment">% Plot Reflection</span>
+subplot(3, 1, 1);
+plot(wavelength, log_R, <span class="string">'LineWidth'</span>, 1.5);
+title(<span class="string">'Reflection Spectrum'</span>);
+xlim([wavelength_i, wavelength_f]);
+ylim([0, 1]);
+legend_string = sprintf(<span class="string">'t_{first} = %.2f nm, t_{second} = %.2f nm, t_{cavity} = %.2f nm'</span>, t_first, t_second, t_cavity);
+legend(legend_string, <span class="string">'Location'</span>, <span class="string">'Best'</span>);
+xlabel(<span class="string">'Wavelength [nm]'</span>);
+ylabel(<span class="string">'Reflection [au]'</span>);
+grid <span class="string">on</span>;
+set(gca, <span class="string">'FontSize'</span>, 12);
+
+<span class="comment">% Plot Transmission</span>
+subplot(3, 1, 2);
+plot(wavelength, log_T, <span class="string">'LineWidth'</span>, 1.5);
+title(<span class="string">'Transmission Spectrum'</span>);
+xlim([wavelength_i, wavelength_f]);
+ylim([0, 1]);
+xlabel(<span class="string">'Wavelength [nm]'</span>);
+ylabel(<span class="string">'Transmission [au]'</span>);
+grid <span class="string">on</span>;
+set(gca, <span class="string">'FontSize'</span>, 12);
+
+<span class="comment">% Plot Phase</span>
+subplot(3, 1, 3);
+plot(wavelength, log_P, <span class="string">'LineWidth'</span>, 1.5);
+title(<span class="string">'Phase Spectrum'</span>);
+xlim([wavelength_i, wavelength_f]);
+xlabel(<span class="string">'Wavelength [nm]'</span>);
+ylabel(<span class="string">'Phase [radians]'</span>);
+grid <span class="string">on</span>;
+set(gca, <span class="string">'FontSize'</span>, 12);
+
+<span class="comment">% Save the figure</span>
+save_path = <span class="string">'C:\Users\jm1261\Documents\Github\Optical_Simulations\Distributed_Bragg_Reflector\Results\'</span>;
+filename = sprintf(<span class="string">'%sDBR_Cavity_t%.2fnm_t1%.2fnm_t2%.2fnm_MATLAB.png'</span>, save_path, t_cavity, t_first, t_second);
+saveas(gcf, filename);
+</pre>
+<h2 id="7">Output Logs to Text File</h2>
+<p>Specify the text file paths</p>
+<pre class="codeinput">matrix_log_filename = sprintf(<span class="string">'%sDBR_Cavity_t%.2fnm_t1%.2fnm_t2%.2fnm_MATLAB_matrix_log.txt'</span>, save_path, t_cavity, t_first, t_second);
+other_log_filename = sprintf(<span class="string">'%sDBR_Cavity_t%.2fnm_t1%.2fnm_t2%.2fnm_MATLAB_other_log.txt'</span>, save_path, t_cavity, t_first, t_second);
+
+<span class="comment">% Open the matrix log text file for writing</span>
+matrix_log_fileID = fopen(matrix_log_filename, <span class="string">'w'</span>);
+
+<span class="comment">% Write the logs of transfer matrices to the matrix log file</span>
+<span class="keyword">for</span> m = 1:number_iterations
+    fprintf(matrix_log_fileID, <span class="string">'Wavelength: %.2f nm\n'</span>, wavelength(m));
+    fprintf(matrix_log_fileID, <span class="string">'Matrix:\n'</span>);
+    fprintf(matrix_log_fileID, <span class="string">'%.6f + %.6fi %.6f + %.6fi\n'</span>, real(log_matrix(1,1,m)), imag(log_matrix(1,1,m)), real(log_matrix(1,2,m)), imag(log_matrix(1,2,m)));
+    fprintf(matrix_log_fileID, <span class="string">'%.6f + %.6fi %.6f + %.6fi\n\n'</span>, real(log_matrix(2,1,m)), imag(log_matrix(2,1,m)), real(log_matrix(2,2,m)), imag(log_matrix(2,2,m)));
+<span class="keyword">end</span>
+
+<span class="comment">% Close the matrix log text file</span>
+fclose(matrix_log_fileID);
+
+<span class="comment">% Open the other log text file for writing</span>
+other_log_fileID = fopen(other_log_filename, <span class="string">'w'</span>);
+
+<span class="comment">% Write the logs of other parameters to the other log file</span>
+fprintf(other_log_fileID, <span class="string">'Wavelength\tLog of k0\tLog of kc\tLog of ks\tLog of Transmission Coefficients\tLog of Reflection Coefficients\tLog of Phases\n'</span>);
+<span class="keyword">for</span> m = 1:number_iterations
+    fprintf(other_log_fileID, <span class="string">'%.2f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\n'</span>, wavelength(m), log_k0(m), log_kc(m), log_ks(m), log_T(m), log_R(m), log_P(m));
+<span class="keyword">end</span>
+
+<span class="comment">% Close the other log text file</span>
+fclose(other_log_fileID);
+</pre>
+<h2 id="8">Output Logs</h2>
+<pre class="codeinput">
+<span class="comment">% Display logs for verification</span>
+disp(<span class="string">'Log of Transfer Matrices:'</span>);
+disp(log_matrix);
+disp(<span class="string">'Log of k0:'</span>);
+disp(log_k0);
+disp(<span class="string">'Log of kc:'</span>);
+disp(log_kc);
+disp(<span class="string">'Log of ks:'</span>);
+disp(log_ks);
+disp(<span class="string">'Log of Transmission Coefficients:'</span>);
+disp(log_T);
+disp(<span class="string">'Log of Reflection Coefficients:'</span>);
+disp(log_R);
+disp(<span class="string">'Log of Phases:'</span>);
+disp(log_P);
+</pre>
+<pre class="codeoutput">Log of Transfer Matrices:
+
+(:,:,1) =
+
+   0.3603 + 0.0000i   0.0000 -27.1417i
+   0.0000 - 0.0319i   0.3687 + 0.0000i
+
+
+(:,:,2) =
+
+   0.2130 + 0.0000i   0.0000 -28.3209i
+   0.0000 - 0.0337i   0.2184 + 0.0000i
+
+
+(:,:,3) =
+
+   0.0598 + 0.0000i   0.0000 -28.8442i
+   0.0000 - 0.0345i   0.0647 + 0.0000i
+
+
+(:,:,4) =
+
+  -0.0957 + 0.0000i   0.0000 -28.7019i
+   0.0000 - 0.0345i  -0.0886 + 0.0000i
+
+
+(:,:,5) =
+
+  -0.2498 + 0.0000i   0.0000 -27.9005i
+   0.0000 - 0.0337i  -0.2380 + 0.0000i
+
+
+(:,:,6) =
+
+  -0.3989 + 0.0000i   0.0000 -26.4616i
+   0.0000 - 0.0321i  -0.3799 + 0.0000i
+
+
+(:,:,7) =
+
+  -0.5397 + 0.0000i   0.0000 -24.4215i
+   0.0000 - 0.0297i  -0.5111 + 0.0000i
+
+
+(:,:,8) =
+
+  -0.6690 + 0.0000i   0.0000 -21.8300i
+   0.0000 - 0.0265i  -0.6285 + 0.0000i
+
+
+(:,:,9) =
+
+  -0.7839 + 0.0000i   0.0000 -18.7491i
+   0.0000 - 0.0228i  -0.7296 + 0.0000i
+
+
+(:,:,10) =
+
+  -0.8820 + 0.0000i   0.0000 -15.2512i
+   0.0000 - 0.0186i  -0.8123 + 0.0000i
+
+
+(:,:,11) =
+
+  -0.9611 + 0.0000i   0.0000 -11.4174i
+   0.0000 - 0.0139i  -0.8748 + 0.0000i
+
+
+(:,:,12) =
+
+  -1.0197 + 0.0000i   0.0000 - 7.3354i
+   0.0000 - 0.0090i  -0.9160 + 0.0000i
+
+
+(:,:,13) =
+
+  -1.0566 + 0.0000i   0.0000 - 3.0976i
+   0.0000 - 0.0039i  -0.9351 + 0.0000i
+
+
+(:,:,14) =
+
+  -1.0712 + 0.0000i   0.0000 + 1.2014i
+   0.0000 + 0.0013i  -0.9320 + 0.0000i
+
+
+(:,:,15) =
+
+  -1.0634 + 0.0000i   0.0000 + 5.4663i
+   0.0000 + 0.0065i  -0.9070 + 0.0000i
+
+
+(:,:,16) =
+
+  -1.0334 + 0.0000i   0.0000 + 9.6041i
+   0.0000 + 0.0115i  -0.8609 + 0.0000i
+
+
+(:,:,17) =
+
+  -0.9820 + 0.0000i   0.0000 +13.5251i
+   0.0000 + 0.0162i  -0.7950 + 0.0000i
+
+
+(:,:,18) =
+
+  -0.9106 + 0.0000i   0.0000 +17.1456i
+   0.0000 + 0.0206i  -0.7109 + 0.0000i
+
+
+(:,:,19) =
+
+  -0.8208 + 0.0000i   0.0000 +20.3893i
+   0.0000 + 0.0245i  -0.6107 + 0.0000i
+
+
+(:,:,20) =
+
+  -0.7147 + 0.0000i   0.0000 +23.1884i
+   0.0000 + 0.0278i  -0.4969 + 0.0000i
+
+
+(:,:,21) =
+
+  -0.5944 + 0.0000i   0.0000 +25.4857i
+   0.0000 + 0.0306i  -0.3720 + 0.0000i
+
+
+(:,:,22) =
+
+  -0.4627 + 0.0000i   0.0000 +27.2349i
+   0.0000 + 0.0327i  -0.2389 + 0.0000i
+
+
+(:,:,23) =
+
+  -0.3224 + 0.0000i   0.0000 +28.4018i
+   0.0000 + 0.0341i  -0.1005 + 0.0000i
+
+
+(:,:,24) =
+
+  -0.1763 + 0.0000i   0.0000 +28.9645i
+   0.0000 + 0.0348i   0.0401 + 0.0000i
+
+
+(:,:,25) =
+
+  -0.0275 + 0.0000i   0.0000 +28.9139i
+   0.0000 + 0.0348i   0.1799 + 0.0000i
+
+
+(:,:,26) =
+
+   0.1210 + 0.0000i   0.0000 +28.2535i
+   0.0000 + 0.0340i   0.3159 + 0.0000i
+
+
+(:,:,27) =
+
+   0.2663 + 0.0000i   0.0000 +26.9992i
+   0.0000 + 0.0326i   0.4453 + 0.0000i
+
+
+(:,:,28) =
+
+   0.4054 + 0.0000i   0.0000 +25.1785i
+   0.0000 + 0.0306i   0.5654 + 0.0000i
+
+
+(:,:,29) =
+
+   0.5358 + 0.0000i   0.0000 +22.8302i
+   0.0000 + 0.0280i   0.6738 + 0.0000i
+
+
+(:,:,30) =
+
+   0.6550 + 0.0000i   0.0000 +20.0030i
+   0.0000 + 0.0248i   0.7683 + 0.0000i
+
+
+(:,:,31) =
+
+   0.7607 + 0.0000i   0.0000 +16.7545i
+   0.0000 + 0.0212i   0.8471 + 0.0000i
+
+
+(:,:,32) =
+
+   0.8509 + 0.0000i   0.0000 +13.1500i
+   0.0000 + 0.0172i   0.9088 + 0.0000i
+
+
+(:,:,33) =
+
+   0.9242 + 0.0000i   0.0000 + 9.2608i
+   0.0000 + 0.0130i   0.9521 + 0.0000i
+
+
+(:,:,34) =
+
+   0.9793 + 0.0000i   0.0000 + 5.1631i
+   0.0000 + 0.0085i   0.9765 + 0.0000i
+
+
+(:,:,35) =
+
+   1.0152 + 0.0000i   0.0000 + 0.9361i
+   0.0000 + 0.0039i   0.9815 + 0.0000i
+
+
+(:,:,36) =
+
+   1.0315 + 0.0000i   0.0000 - 3.3393i
+   0.0000 - 0.0007i   0.9671 + 0.0000i
+
+
+(:,:,37) =
+
+   1.0280 + 0.0000i   0.0000 - 7.5825i
+   0.0000 - 0.0052i   0.9340 + 0.0000i
+
+
+(:,:,38) =
+
+   1.0051 + 0.0000i   0.0000 -11.7144i
+   0.0000 - 0.0096i   0.8828 + 0.0000i
+
+
+(:,:,39) =
+
+   0.9632 + 0.0000i   0.0000 -15.6586i
+   0.0000 - 0.0137i   0.8147 + 0.0000i
+
+
+(:,:,40) =
+
+   0.9034 + 0.0000i   0.0000 -19.3436i
+   0.0000 - 0.0175i   0.7312 + 0.0000i
+
+
+(:,:,41) =
+
+   0.8268 + 0.0000i   0.0000 -22.7032i
+   0.0000 - 0.0210i   0.6340 + 0.0000i
+
+
+(:,:,42) =
+
+   0.7351 + 0.0000i   0.0000 -25.6783i
+   0.0000 - 0.0239i   0.5250 + 0.0000i
+
+
+(:,:,43) =
+
+   0.6299 + 0.0000i   0.0000 -28.2173i
+   0.0000 - 0.0264i   0.4066 + 0.0000i
+
+
+(:,:,44) =
+
+   0.5134 + 0.0000i   0.0000 -30.2772i
+   0.0000 - 0.0283i   0.2809 + 0.0000i
+
+
+(:,:,45) =
+
+   0.3876 + 0.0000i   0.0000 -31.8244i
+   0.0000 - 0.0296i   0.1505 + 0.0000i
+
+
+(:,:,46) =
+
+   0.2549 + 0.0000i   0.0000 -32.8347i
+   0.0000 - 0.0303i   0.0179 + 0.0000i
+
+
+(:,:,47) =
+
+   0.1176 + 0.0000i   0.0000 -33.2940i
+   0.0000 - 0.0304i  -0.1146 + 0.0000i
+
+
+(:,:,48) =
+
+  -0.0217 + 0.0000i   0.0000 -33.1979i
+   0.0000 - 0.0300i  -0.2443 + 0.0000i
+
+
+(:,:,49) =
+
+  -0.1608 + 0.0000i   0.0000 -32.5521i
+   0.0000 - 0.0289i  -0.3689 + 0.0000i
+
+
+(:,:,50) =
+
+  -0.2973 + 0.0000i   0.0000 -31.3718i
+   0.0000 - 0.0273i  -0.4861 + 0.0000i
+
+
+(:,:,51) =
+
+  -0.4287 + 0.0000i   0.0000 -29.6813i
+   0.0000 - 0.0251i  -0.5938 + 0.0000i
+
+
+(:,:,52) =
+
+  -0.5530 + 0.0000i   0.0000 -27.5135i
+   0.0000 - 0.0225i  -0.6902 + 0.0000i
+
+
+(:,:,53) =
+
+  -0.6682 + 0.0000i   0.0000 -24.9091i
+   0.0000 - 0.0194i  -0.7734 + 0.0000i
+
+
+(:,:,54) =
+
+  -0.7724 + 0.0000i   0.0000 -21.9158i
+   0.0000 - 0.0159i  -0.8422 + 0.0000i
+
+
+(:,:,55) =
+
+  -0.8639 + 0.0000i   0.0000 -18.5872i
+   0.0000 - 0.0122i  -0.8954 + 0.0000i
+
+
+(:,:,56) =
+
+  -0.9416 + 0.0000i   0.0000 -14.9822i
+   0.0000 - 0.0082i  -0.9320 + 0.0000i
+
+
+(:,:,57) =
+
+  -1.0041 + 0.0000i   0.0000 -11.1632i
+   0.0000 - 0.0040i  -0.9516 + 0.0000i
+
+
+(:,:,58) =
+
+  -1.0506 + 0.0000i   0.0000 - 7.1958i
+   0.0000 + 0.0003i  -0.9538 + 0.0000i
+
+
+(:,:,59) =
+
+  -1.0807 + 0.0000i   0.0000 - 3.1470i
+   0.0000 + 0.0046i  -0.9387 + 0.0000i
+
+
+(:,:,60) =
+
+  -1.0939 + 0.0000i   0.0000 + 0.9158i
+   0.0000 + 0.0089i  -0.9068 + 0.0000i
+
+
+(:,:,61) =
+
+  -1.0902 + 0.0000i   0.0000 + 4.9255i
+   0.0000 + 0.0130i  -0.8585 + 0.0000i
+
+
+(:,:,62) =
+
+  -1.0699 + 0.0000i   0.0000 + 8.8170i
+   0.0000 + 0.0170i  -0.7948 + 0.0000i
+
+
+(:,:,63) =
+
+  -1.0335 + 0.0000i   0.0000 +12.5280i
+   0.0000 + 0.0207i  -0.7169 + 0.0000i
+
+
+(:,:,64) =
+
+  -0.9818 + 0.0000i   0.0000 +15.9995i
+   0.0000 + 0.0241i  -0.6261 + 0.0000i
+
+
+(:,:,65) =
+
+  -0.9156 + 0.0000i   0.0000 +19.1777i
+   0.0000 + 0.0271i  -0.5240 + 0.0000i
+
+
+(:,:,66) =
+
+  -0.8363 + 0.0000i   0.0000 +22.0138i
+   0.0000 + 0.0298i  -0.4124 + 0.0000i
+
+
+(:,:,67) =
+
+  -0.7452 + 0.0000i   0.0000 +24.4653i
+   0.0000 + 0.0319i  -0.2932 + 0.0000i
+
+
+(:,:,68) =
+
+  -0.6438 + 0.0000i   0.0000 +26.4960i
+   0.0000 + 0.0337i  -0.1683 + 0.0000i
+
+
+(:,:,69) =
+
+  -0.5338 + 0.0000i   0.0000 +28.0772i
+   0.0000 + 0.0349i  -0.0399 + 0.0000i
+
+
+(:,:,70) =
+
+  -0.4169 + 0.0000i   0.0000 +29.1875i
+   0.0000 + 0.0355i   0.0899 + 0.0000i
+
+
+(:,:,71) =
+
+  -0.2951 + 0.0000i   0.0000 +29.8128i
+   0.0000 + 0.0357i   0.2192 + 0.0000i
+
+
+(:,:,72) =
+
+  -0.1701 + 0.0000i   0.0000 +29.9473i
+   0.0000 + 0.0354i   0.3456 + 0.0000i
+
+
+(:,:,73) =
+
+  -0.0439 + 0.0000i   0.0000 +29.5922i
+   0.0000 + 0.0345i   0.4673 + 0.0000i
+
+
+(:,:,74) =
+
+   0.0816 + 0.0000i   0.0000 +28.7567i
+   0.0000 + 0.0331i   0.5823 + 0.0000i
+
+
+(:,:,75) =
+
+   0.2045 + 0.0000i   0.0000 +27.4570i
+   0.0000 + 0.0313i   0.6888 + 0.0000i
+
+
+(:,:,76) =
+
+   0.3232 + 0.0000i   0.0000 +25.7160i
+   0.0000 + 0.0290i   0.7852 + 0.0000i
+
+
+(:,:,77) =
+
+   0.4359 + 0.0000i   0.0000 +23.5631i
+   0.0000 + 0.0263i   0.8700 + 0.0000i
+
+
+(:,:,78) =
+
+   0.5411 + 0.0000i   0.0000 +21.0337i
+   0.0000 + 0.0233i   0.9418 + 0.0000i
+
+
+(:,:,79) =
+
+   0.6373 + 0.0000i   0.0000 +18.1680i
+   0.0000 + 0.0200i   0.9996 + 0.0000i
+
+
+(:,:,80) =
+
+   0.7233 + 0.0000i   0.0000 +15.0108i
+   0.0000 + 0.0164i   1.0426 + 0.0000i
+
+
+(:,:,81) =
+
+   0.7979 + 0.0000i   0.0000 +11.6109i
+   0.0000 + 0.0126i   1.0701 + 0.0000i
+
+
+(:,:,82) =
+
+   0.8603 + 0.0000i   0.0000 + 8.0195i
+   0.0000 + 0.0086i   1.0817 + 0.0000i
+
+
+(:,:,83) =
+
+   0.9098 + 0.0000i   0.0000 + 4.2905i
+   0.0000 + 0.0046i   1.0774 + 0.0000i
+
+
+(:,:,84) =
+
+   0.9457 + 0.0000i   0.0000 + 0.4787i
+   0.0000 + 0.0006i   1.0571 + 0.0000i
+
+
+(:,:,85) =
+
+   0.9678 + 0.0000i   0.0000 - 3.3605i
+   0.0000 - 0.0035i   1.0212 + 0.0000i
+
+
+(:,:,86) =
+
+   0.9760 + 0.0000i   0.0000 - 7.1719i
+   0.0000 - 0.0074i   0.9703 + 0.0000i
+
+
+(:,:,87) =
+
+   0.9702 + 0.0000i   0.0000 -10.9015i
+   0.0000 - 0.0112i   0.9052 + 0.0000i
+
+
+(:,:,88) =
+
+   0.9509 + 0.0000i   0.0000 -14.4973i
+   0.0000 - 0.0148i   0.8267 + 0.0000i
+
+
+(:,:,89) =
+
+   0.9183 + 0.0000i   0.0000 -17.9096i
+   0.0000 - 0.0181i   0.7361 + 0.0000i
+
+
+(:,:,90) =
+
+   0.8731 + 0.0000i   0.0000 -21.0923i
+   0.0000 - 0.0211i   0.6347 + 0.0000i
+
+
+(:,:,91) =
+
+   0.8161 + 0.0000i   0.0000 -24.0028i
+   0.0000 - 0.0238i   0.5240 + 0.0000i
+
+
+(:,:,92) =
+
+   0.7483 + 0.0000i   0.0000 -26.6030i
+   0.0000 - 0.0262i   0.4055 + 0.0000i
+
+
+(:,:,93) =
+
+   0.6706 + 0.0000i   0.0000 -28.8597i
+   0.0000 - 0.0281i   0.2809 + 0.0000i
+
+
+(:,:,94) =
+
+   0.5842 + 0.0000i   0.0000 -30.7447i
+   0.0000 - 0.0296i   0.1520 + 0.0000i
+
+
+(:,:,95) =
+
+   0.4904 + 0.0000i   0.0000 -32.2356i
+   0.0000 - 0.0307i   0.0206 + 0.0000i
+
+
+(:,:,96) =
+
+   0.3906 + 0.0000i   0.0000 -33.3155i
+   0.0000 - 0.0313i  -0.1115 + 0.0000i
+
+
+(:,:,97) =
+
+   0.2860 + 0.0000i   0.0000 -33.9734i
+   0.0000 - 0.0315i  -0.2425 + 0.0000i
+
+
+(:,:,98) =
+
+   0.1782 + 0.0000i   0.0000 -34.2042i
+   0.0000 - 0.0312i  -0.3705 + 0.0000i
+
+
+(:,:,99) =
+
+   0.0686 + 0.0000i   0.0000 -34.0088i
+   0.0000 - 0.0304i  -0.4938 + 0.0000i
+
+
+(:,:,100) =
+
+  -0.0414 + 0.0000i   0.0000 -33.3938i
+   0.0000 - 0.0292i  -0.6107 + 0.0000i
+
+
+(:,:,101) =
+
+  -0.1503 + 0.0000i   0.0000 -32.3714i
+   0.0000 - 0.0276i  -0.7197 + 0.0000i
+
+
+(:,:,102) =
+
+  -0.2567 + 0.0000i   0.0000 -30.9591i
+   0.0000 - 0.0255i  -0.8193 + 0.0000i
+
+
+(:,:,103) =
+
+  -0.3595 + 0.0000i   0.0000 -29.1795i
+   0.0000 - 0.0231i  -0.9081 + 0.0000i
+
+
+(:,:,104) =
+
+  -0.4571 + 0.0000i   0.0000 -27.0599i
+   0.0000 - 0.0203i  -0.9850 + 0.0000i
+
+
+(:,:,105) =
+
+  -0.5486 + 0.0000i   0.0000 -24.6317i
+   0.0000 - 0.0172i  -1.0490 + 0.0000i
+
+
+(:,:,106) =
+
+  -0.6329 + 0.0000i   0.0000 -21.9302i
+   0.0000 - 0.0139i  -1.0991 + 0.0000i
+
+
+(:,:,107) =
+
+  -0.7089 + 0.0000i   0.0000 -18.9939i
+   0.0000 - 0.0103i  -1.1348 + 0.0000i
+
+
+(:,:,108) =
+
+  -0.7758 + 0.0000i   0.0000 -15.8638i
+   0.0000 - 0.0065i  -1.1556 + 0.0000i
+
+
+(:,:,109) =
+
+  -0.8330 + 0.0000i   0.0000 -12.5834i
+   0.0000 - 0.0026i  -1.1611 + 0.0000i
+
+
+(:,:,110) =
+
+  -0.8797 + 0.0000i   0.0000 - 9.1975i
+   0.0000 + 0.0014i  -1.1513 + 0.0000i
+
+
+(:,:,111) =
+
+  -0.9157 + 0.0000i   0.0000 - 5.7519i
+   0.0000 + 0.0055i  -1.1263 + 0.0000i
+
+
+(:,:,112) =
+
+  -0.9406 + 0.0000i   0.0000 - 2.2927i
+   0.0000 + 0.0095i  -1.0864 + 0.0000i
+
+
+(:,:,113) =
+
+  -0.9541 + 0.0000i   0.0000 + 1.1340i
+   0.0000 + 0.0135i  -1.0320 + 0.0000i
+
+
+(:,:,114) =
+
+  -0.9563 + 0.0000i   0.0000 + 4.4831i
+   0.0000 + 0.0174i  -0.9639 + 0.0000i
+
+
+(:,:,115) =
+
+  -0.9474 + 0.0000i   0.0000 + 7.7106i
+   0.0000 + 0.0212i  -0.8828 + 0.0000i
+
+
+(:,:,116) =
+
+  -0.9274 + 0.0000i   0.0000 +10.7747i
+   0.0000 + 0.0248i  -0.7897 + 0.0000i
+
+
+(:,:,117) =
+
+  -0.8968 + 0.0000i   0.0000 +13.6355i
+   0.0000 + 0.0282i  -0.6857 + 0.0000i
+
+
+(:,:,118) =
+
+  -0.8561 + 0.0000i   0.0000 +16.2562i
+   0.0000 + 0.0314i  -0.5721 + 0.0000i
+
+
+(:,:,119) =
+
+  -0.8058 + 0.0000i   0.0000 +18.6031i
+   0.0000 + 0.0342i  -0.4503 + 0.0000i
+
+
+(:,:,120) =
+
+  -0.7467 + 0.0000i   0.0000 +20.6461i
+   0.0000 + 0.0368i  -0.3216 + 0.0000i
+
+
+(:,:,121) =
+
+  -0.6794 + 0.0000i   0.0000 +22.3588i
+   0.0000 + 0.0390i  -0.1877 + 0.0000i
+
+
+(:,:,122) =
+
+  -0.6050 + 0.0000i   0.0000 +23.7191i
+   0.0000 + 0.0409i  -0.0501 + 0.0000i
+
+
+(:,:,123) =
+
+  -0.5242 + 0.0000i   0.0000 +24.7091i
+   0.0000 + 0.0424i   0.0896 + 0.0000i
+
+
+(:,:,124) =
+
+  -0.4380 + 0.0000i   0.0000 +25.3156i
+   0.0000 + 0.0435i   0.2297 + 0.0000i
+
+
+(:,:,125) =
+
+  -0.3475 + 0.0000i   0.0000 +25.5298i
+   0.0000 + 0.0442i   0.3686 + 0.0000i
+
+
+(:,:,126) =
+
+  -0.2537 + 0.0000i   0.0000 +25.3476i
+   0.0000 + 0.0445i   0.5046 + 0.0000i
+
+
+(:,:,127) =
+
+  -0.1577 + 0.0000i   0.0000 +24.7695i
+   0.0000 + 0.0444i   0.6360 + 0.0000i
+
+
+(:,:,128) =
+
+  -0.0605 + 0.0000i   0.0000 +23.8005i
+   0.0000 + 0.0440i   0.7614 + 0.0000i
+
+
+(:,:,129) =
+
+   0.0368 + 0.0000i   0.0000 +22.4501i
+   0.0000 + 0.0431i   0.8793 + 0.0000i
+
+
+(:,:,130) =
+
+   0.1333 + 0.0000i   0.0000 +20.7323i
+   0.0000 + 0.0419i   0.9882 + 0.0000i
+
+
+(:,:,131) =
+
+   0.2278 + 0.0000i   0.0000 +18.6648i
+   0.0000 + 0.0403i   1.0869 + 0.0000i
+
+
+(:,:,132) =
+
+   0.3195 + 0.0000i   0.0000 +16.2693i
+   0.0000 + 0.0384i   1.1740 + 0.0000i
+
+
+(:,:,133) =
+
+   0.4074 + 0.0000i   0.0000 +13.5712i
+   0.0000 + 0.0362i   1.2486 + 0.0000i
+
+
+(:,:,134) =
+
+   0.4907 + 0.0000i   0.0000 +10.5990i
+   0.0000 + 0.0337i   1.3097 + 0.0000i
+
+
+(:,:,135) =
+
+   0.5686 + 0.0000i   0.0000 + 7.3841i
+   0.0000 + 0.0310i   1.3565 + 0.0000i
+
+
+(:,:,136) =
+
+   0.6404 + 0.0000i   0.0000 + 3.9605i
+   0.0000 + 0.0280i   1.3882 + 0.0000i
+
+
+(:,:,137) =
+
+   0.7056 + 0.0000i   0.0000 + 0.3641i
+   0.0000 + 0.0248i   1.4045 + 0.0000i
+
+
+(:,:,138) =
+
+   0.7635 + 0.0000i   0.0000 - 3.3672i
+   0.0000 + 0.0215i   1.4048 + 0.0000i
+
+
+(:,:,139) =
+
+   0.8137 + 0.0000i   0.0000 - 7.1943i
+   0.0000 + 0.0181i   1.3891 + 0.0000i
+
+
+(:,:,140) =
+
+   0.8558 + 0.0000i   0.0000 -11.0772i
+   0.0000 + 0.0146i   1.3572 + 0.0000i
+
+
+(:,:,141) =
+
+   0.8897 + 0.0000i   0.0000 -14.9755i
+   0.0000 + 0.0110i   1.3092 + 0.0000i
+
+
+(:,:,142) =
+
+   0.9151 + 0.0000i   0.0000 -18.8486i
+   0.0000 + 0.0074i   1.2455 + 0.0000i
+
+
+(:,:,143) =
+
+   0.9320 + 0.0000i   0.0000 -22.6564i
+   0.0000 + 0.0038i   1.1665 + 0.0000i
+
+
+(:,:,144) =
+
+   0.9404 + 0.0000i   0.0000 -26.3597i
+   0.0000 + 0.0003i   1.0726 + 0.0000i
+
+
+(:,:,145) =
+
+   0.9404 + 0.0000i   0.0000 -29.9201i
+   0.0000 - 0.0031i   0.9645 + 0.0000i
+
+
+(:,:,146) =
+
+   0.9322 + 0.0000i   0.0000 -33.3011i
+   0.0000 - 0.0064i   0.8432 + 0.0000i
+
+
+(:,:,147) =
+
+   0.9160 + 0.0000i   0.0000 -36.4678i
+   0.0000 - 0.0096i   0.7095 + 0.0000i
+
+
+(:,:,148) =
+
+   0.8924 + 0.0000i   0.0000 -39.3877i
+   0.0000 - 0.0126i   0.5645 + 0.0000i
+
+
+(:,:,149) =
+
+   0.8616 + 0.0000i   0.0000 -42.0307i
+   0.0000 - 0.0154i   0.4093 + 0.0000i
+
+
+(:,:,150) =
+
+   0.8241 + 0.0000i   0.0000 -44.3694i
+   0.0000 - 0.0180i   0.2451 + 0.0000i
+
+
+(:,:,151) =
+
+   0.7806 + 0.0000i   0.0000 -46.3794i
+   0.0000 - 0.0203i   0.0733 + 0.0000i
+
+
+(:,:,152) =
+
+   0.7316 + 0.0000i   0.0000 -48.0396i
+   0.0000 - 0.0224i  -0.1047 + 0.0000i
+
+
+(:,:,153) =
+
+   0.6778 + 0.0000i   0.0000 -49.3322i
+   0.0000 - 0.0242i  -0.2876 + 0.0000i
+
+
+(:,:,154) =
+
+   0.6199 + 0.0000i   0.0000 -50.2428i
+   0.0000 - 0.0258i  -0.4739 + 0.0000i
+
+
+(:,:,155) =
+
+   0.5585 + 0.0000i   0.0000 -50.7606i
+   0.0000 - 0.0270i  -0.6621 + 0.0000i
+
+
+(:,:,156) =
+
+   0.4944 + 0.0000i   0.0000 -50.8783i
+   0.0000 - 0.0279i  -0.8507 + 0.0000i
+
+
+(:,:,157) =
+
+   0.4284 + 0.0000i   0.0000 -50.5926i
+   0.0000 - 0.0286i  -1.0383 + 0.0000i
+
+
+(:,:,158) =
+
+   0.3612 + 0.0000i   0.0000 -49.9035i
+   0.0000 - 0.0289i  -1.2233 + 0.0000i
+
+
+(:,:,159) =
+
+   0.2936 + 0.0000i   0.0000 -48.8147i
+   0.0000 - 0.0289i  -1.4044 + 0.0000i
+
+
+(:,:,160) =
+
+   0.2263 + 0.0000i   0.0000 -47.3334i
+   0.0000 - 0.0287i  -1.5801 + 0.0000i
+
+
+(:,:,161) =
+
+   0.1599 + 0.0000i   0.0000 -45.4701i
+   0.0000 - 0.0281i  -1.7491 + 0.0000i
+
+
+(:,:,162) =
+
+   0.0953 + 0.0000i   0.0000 -43.2389i
+   0.0000 - 0.0273i  -1.9101 + 0.0000i
+
+
+(:,:,163) =
+
+   0.0331 + 0.0000i   0.0000 -40.6565i
+   0.0000 - 0.0263i  -2.0619 + 0.0000i
+
+
+(:,:,164) =
+
+  -0.0262 + 0.0000i   0.0000 -37.7428i
+   0.0000 - 0.0250i  -2.2034 + 0.0000i
+
+
+(:,:,165) =
+
+  -0.0819 + 0.0000i   0.0000 -34.5204i
+   0.0000 - 0.0234i  -2.3335 + 0.0000i
+
+
+(:,:,166) =
+
+  -0.1334 + 0.0000i   0.0000 -31.0143i
+   0.0000 - 0.0217i  -2.4514 + 0.0000i
+
+
+(:,:,167) =
+
+  -0.1804 + 0.0000i   0.0000 -27.2517i
+   0.0000 - 0.0198i  -2.5561 + 0.0000i
+
+
+(:,:,168) =
+
+  -0.2223 + 0.0000i   0.0000 -23.2617i
+   0.0000 - 0.0177i  -2.6469 + 0.0000i
+
+
+(:,:,169) =
+
+  -0.2588 + 0.0000i   0.0000 -19.0751i
+   0.0000 - 0.0155i  -2.7232 + 0.0000i
+
+
+(:,:,170) =
+
+  -0.2897 + 0.0000i   0.0000 -14.7241i
+   0.0000 - 0.0131i  -2.7846 + 0.0000i
+
+
+(:,:,171) =
+
+  -0.3145 + 0.0000i   0.0000 -10.2420i
+   0.0000 - 0.0107i  -2.8306 + 0.0000i
+
+
+(:,:,172) =
+
+  -0.3333 + 0.0000i   0.0000 - 5.6628i
+   0.0000 - 0.0082i  -2.8610 + 0.0000i
+
+
+(:,:,173) =
+
+  -0.3457 + 0.0000i   0.0000 - 1.0211i
+   0.0000 - 0.0057i  -2.8756 + 0.0000i
+
+
+(:,:,174) =
+
+  -0.3519 + 0.0000i   0.0000 + 3.6484i
+   0.0000 - 0.0032i  -2.8745 + 0.0000i
+
+
+(:,:,175) =
+
+  -0.3518 + 0.0000i   0.0000 + 8.3111i
+   0.0000 - 0.0006i  -2.8576 + 0.0000i
+
+
+(:,:,176) =
+
+  -0.3454 + 0.0000i   0.0000 +12.9326i
+   0.0000 + 0.0019i  -2.8253 + 0.0000i
+
+
+(:,:,177) =
+
+  -0.3329 + 0.0000i   0.0000 +17.4794i
+   0.0000 + 0.0043i  -2.7778 + 0.0000i
+
+
+(:,:,178) =
+
+  -0.3146 + 0.0000i   0.0000 +21.9188i
+   0.0000 + 0.0067i  -2.7156 + 0.0000i
+
+
+(:,:,179) =
+
+  -0.2905 + 0.0000i   0.0000 +26.2192i
+   0.0000 + 0.0089i  -2.6391 + 0.0000i
+
+
+(:,:,180) =
+
+  -0.2611 + 0.0000i   0.0000 +30.3506i
+   0.0000 + 0.0110i  -2.5491 + 0.0000i
+
+
+(:,:,181) =
+
+  -0.2267 + 0.0000i   0.0000 +34.2845i
+   0.0000 + 0.0130i  -2.4461 + 0.0000i
+
+
+(:,:,182) =
+
+  -0.1877 + 0.0000i   0.0000 +37.9942i
+   0.0000 + 0.0148i  -2.3311 + 0.0000i
+
+
+(:,:,183) =
+
+  -0.1444 + 0.0000i   0.0000 +41.4551i
+   0.0000 + 0.0164i  -2.2049 + 0.0000i
+
+
+(:,:,184) =
+
+  -0.0974 + 0.0000i   0.0000 +44.6448i
+   0.0000 + 0.0179i  -2.0683 + 0.0000i
+
+
+(:,:,185) =
+
+  -0.0472 + 0.0000i   0.0000 +47.5431i
+   0.0000 + 0.0191i  -1.9225 + 0.0000i
+
+
+(:,:,186) =
+
+   0.0058 + 0.0000i   0.0000 +50.1324i
+   0.0000 + 0.0202i  -1.7684 + 0.0000i
+
+
+(:,:,187) =
+
+   0.0609 + 0.0000i   0.0000 +52.3975i
+   0.0000 + 0.0210i  -1.6072 + 0.0000i
+
+
+(:,:,188) =
+
+   0.1177 + 0.0000i   0.0000 +54.3259i
+   0.0000 + 0.0215i  -1.4399 + 0.0000i
+
+
+(:,:,189) =
+
+   0.1756 + 0.0000i   0.0000 +55.9078i
+   0.0000 + 0.0219i  -1.2677 + 0.0000i
+
+
+(:,:,190) =
+
+   0.2339 + 0.0000i   0.0000 +57.1359i
+   0.0000 + 0.0220i  -1.0918 + 0.0000i
+
+
+(:,:,191) =
+
+   0.2922 + 0.0000i   0.0000 +58.0060i
+   0.0000 + 0.0218i  -0.9133 + 0.0000i
+
+
+(:,:,192) =
+
+   0.3498 + 0.0000i   0.0000 +58.5162i
+   0.0000 + 0.0215i  -0.7333 + 0.0000i
+
+
+(:,:,193) =
+
+   0.4063 + 0.0000i   0.0000 +58.6674i
+   0.0000 + 0.0209i  -0.5531 + 0.0000i
+
+
+(:,:,194) =
+
+   0.4610 + 0.0000i   0.0000 +58.4634i
+   0.0000 + 0.0201i  -0.3738 + 0.0000i
+
+
+(:,:,195) =
+
+   0.5134 + 0.0000i   0.0000 +57.9101i
+   0.0000 + 0.0190i  -0.1964 + 0.0000i
+
+
+(:,:,196) =
+
+   0.5631 + 0.0000i   0.0000 +57.0161i
+   0.0000 + 0.0178i  -0.0221 + 0.0000i
+
+
+(:,:,197) =
+
+   0.6096 + 0.0000i   0.0000 +55.7923i
+   0.0000 + 0.0163i   0.1481 + 0.0000i
+
+
+(:,:,198) =
+
+   0.6524 + 0.0000i   0.0000 +54.2520i
+   0.0000 + 0.0147i   0.3132 + 0.0000i
+
+
+(:,:,199) =
+
+   0.6912 + 0.0000i   0.0000 +52.4102i
+   0.0000 + 0.0129i   0.4723 + 0.0000i
+
+
+(:,:,200) =
+
+   0.7254 + 0.0000i   0.0000 +50.2843i
+   0.0000 + 0.0109i   0.6245 + 0.0000i
+
+
+(:,:,201) =
+
+   0.7550 + 0.0000i   0.0000 +47.8931i
+   0.0000 + 0.0088i   0.7690 + 0.0000i
+
+
+(:,:,202) =
+
+   0.7794 + 0.0000i   0.0000 +45.2572i
+   0.0000 + 0.0065i   0.9050 + 0.0000i
+
+
+(:,:,203) =
+
+   0.7986 + 0.0000i   0.0000 +42.3987i
+   0.0000 + 0.0042i   1.0319 + 0.0000i
+
+
+(:,:,204) =
+
+   0.8122 + 0.0000i   0.0000 +39.3407i
+   0.0000 + 0.0017i   1.1490 + 0.0000i
+
+
+(:,:,205) =
+
+   0.8202 + 0.0000i   0.0000 +36.1076i
+   0.0000 - 0.0008i   1.2558 + 0.0000i
+
+
+(:,:,206) =
+
+   0.8223 + 0.0000i   0.0000 +32.7245i
+   0.0000 - 0.0034i   1.3519 + 0.0000i
+
+
+(:,:,207) =
+
+   0.8187 + 0.0000i   0.0000 +29.2173i
+   0.0000 - 0.0060i   1.4368 + 0.0000i
+
+
+(:,:,208) =
+
+   0.8092 + 0.0000i   0.0000 +25.6123i
+   0.0000 - 0.0087i   1.5104 + 0.0000i
+
+
+(:,:,209) =
+
+   0.7939 + 0.0000i   0.0000 +21.9360i
+   0.0000 - 0.0113i   1.5724 + 0.0000i
+
+
+(:,:,210) =
+
+   0.7728 + 0.0000i   0.0000 +18.2151i
+   0.0000 - 0.0139i   1.6226 + 0.0000i
+
+
+(:,:,211) =
+
+   0.7460 + 0.0000i   0.0000 +14.4761i
+   0.0000 - 0.0165i   1.6610 + 0.0000i
+
+
+(:,:,212) =
+
+   0.7138 + 0.0000i   0.0000 +10.7453i
+   0.0000 - 0.0190i   1.6876 + 0.0000i
+
+
+(:,:,213) =
+
+   0.6764 + 0.0000i   0.0000 + 7.0483i
+   0.0000 - 0.0215i   1.7026 + 0.0000i
+
+
+(:,:,214) =
+
+   0.6339 + 0.0000i   0.0000 + 3.4104i
+   0.0000 - 0.0239i   1.7060 + 0.0000i
+
+
+(:,:,215) =
+
+   0.5866 + 0.0000i   0.0000 - 0.1443i
+   0.0000 - 0.0261i   1.6982 + 0.0000i
+
+
+(:,:,216) =
+
+   0.5349 + 0.0000i   0.0000 - 3.5924i
+   0.0000 - 0.0283i   1.6795 + 0.0000i
+
+
+(:,:,217) =
+
+   0.4792 + 0.0000i   0.0000 - 6.9118i
+   0.0000 - 0.0303i   1.6502 + 0.0000i
+
+
+(:,:,218) =
+
+   0.4196 + 0.0000i   0.0000 -10.0813i
+   0.0000 - 0.0321i   1.6107 + 0.0000i
+
+
+(:,:,219) =
+
+   0.3568 + 0.0000i   0.0000 -13.0815i
+   0.0000 - 0.0339i   1.5616 + 0.0000i
+
+
+(:,:,220) =
+
+   0.2910 + 0.0000i   0.0000 -15.8943i
+   0.0000 - 0.0354i   1.5034 + 0.0000i
+
+
+(:,:,221) =
+
+   0.2228 + 0.0000i   0.0000 -18.5031i
+   0.0000 - 0.0367i   1.4367 + 0.0000i
+
+
+(:,:,222) =
+
+   0.1525 + 0.0000i   0.0000 -20.8931i
+   0.0000 - 0.0379i   1.3622 + 0.0000i
+
+
+(:,:,223) =
+
+   0.0807 + 0.0000i   0.0000 -23.0510i
+   0.0000 - 0.0389i   1.2804 + 0.0000i
+
+
+(:,:,224) =
+
+   0.0077 + 0.0000i   0.0000 -24.9656i
+   0.0000 - 0.0397i   1.1921 + 0.0000i
+
+
+(:,:,225) =
+
+  -0.0658 + 0.0000i   0.0000 -26.6274i
+   0.0000 - 0.0403i   1.0979 + 0.0000i
+
+
+(:,:,226) =
+
+  -0.1395 + 0.0000i   0.0000 -28.0286i
+   0.0000 - 0.0406i   0.9988 + 0.0000i
+
+
+(:,:,227) =
+
+  -0.2128 + 0.0000i   0.0000 -29.1635i
+   0.0000 - 0.0408i   0.8953 + 0.0000i
+
+
+(:,:,228) =
+
+  -0.2853 + 0.0000i   0.0000 -30.0282i
+   0.0000 - 0.0408i   0.7883 + 0.0000i
+
+
+(:,:,229) =
+
+  -0.3565 + 0.0000i   0.0000 -30.6207i
+   0.0000 - 0.0406i   0.6786 + 0.0000i
+
+
+(:,:,230) =
+
+  -0.4260 + 0.0000i   0.0000 -30.9408i
+   0.0000 - 0.0401i   0.5669 + 0.0000i
+
+
+(:,:,231) =
+
+  -0.4933 + 0.0000i   0.0000 -30.9902i
+   0.0000 - 0.0395i   0.4540 + 0.0000i
+
+
+(:,:,232) =
+
+  -0.5580 + 0.0000i   0.0000 -30.7723i
+   0.0000 - 0.0387i   0.3407 + 0.0000i
+
+
+(:,:,233) =
+
+  -0.6197 + 0.0000i   0.0000 -30.2923i
+   0.0000 - 0.0377i   0.2276 + 0.0000i
+
+
+(:,:,234) =
+
+  -0.6780 + 0.0000i   0.0000 -29.5571i
+   0.0000 - 0.0365i   0.1156 + 0.0000i
+
+
+(:,:,235) =
+
+  -0.7326 + 0.0000i   0.0000 -28.5749i
+   0.0000 - 0.0351i   0.0053 + 0.0000i
+
+
+(:,:,236) =
+
+  -0.7831 + 0.0000i   0.0000 -27.3558i
+   0.0000 - 0.0336i  -0.1026 + 0.0000i
+
+
+(:,:,237) =
+
+  -0.8292 + 0.0000i   0.0000 -25.9111i
+   0.0000 - 0.0320i  -0.2074 + 0.0000i
+
+
+(:,:,238) =
+
+  -0.8707 + 0.0000i   0.0000 -24.2533i
+   0.0000 - 0.0302i  -0.3085 + 0.0000i
+
+
+(:,:,239) =
+
+  -0.9073 + 0.0000i   0.0000 -22.3965i
+   0.0000 - 0.0282i  -0.4053 + 0.0000i
+
+
+(:,:,240) =
+
+  -0.9388 + 0.0000i   0.0000 -20.3554i
+   0.0000 - 0.0262i  -0.4974 + 0.0000i
+
+
+(:,:,241) =
+
+  -0.9650 + 0.0000i   0.0000 -18.1461i
+   0.0000 - 0.0240i  -0.5842 + 0.0000i
+
+
+(:,:,242) =
+
+  -0.9858 + 0.0000i   0.0000 -15.7854i
+   0.0000 - 0.0218i  -0.6652 + 0.0000i
+
+
+(:,:,243) =
+
+  -1.0011 + 0.0000i   0.0000 -13.2908i
+   0.0000 - 0.0195i  -0.7400 + 0.0000i
+
+
+(:,:,244) =
+
+  -1.0107 + 0.0000i   0.0000 -10.6804i
+   0.0000 - 0.0171i  -0.8083 + 0.0000i
+
+
+(:,:,245) =
+
+  -1.0148 + 0.0000i   0.0000 - 7.9729i
+   0.0000 - 0.0147i  -0.8698 + 0.0000i
+
+
+(:,:,246) =
+
+  -1.0132 + 0.0000i   0.0000 - 5.1874i
+   0.0000 - 0.0123i  -0.9242 + 0.0000i
+
+
+(:,:,247) =
+
+  -1.0060 + 0.0000i   0.0000 - 2.3432i
+   0.0000 - 0.0098i  -0.9712 + 0.0000i
+
+
+(:,:,248) =
+
+  -0.9933 + 0.0000i   0.0000 + 0.5405i
+   0.0000 - 0.0073i  -1.0108 + 0.0000i
+
+
+(:,:,249) =
+
+  -0.9751 + 0.0000i   0.0000 + 3.4441i
+   0.0000 - 0.0049i  -1.0427 + 0.0000i
+
+
+(:,:,250) =
+
+  -0.9516 + 0.0000i   0.0000 + 6.3483i
+   0.0000 - 0.0024i  -1.0669 + 0.0000i
+
+
+(:,:,251) =
+
+  -0.9229 + 0.0000i   0.0000 + 9.2343i
+   0.0000 + 0.0000i  -1.0834 + 0.0000i
+
+
+(:,:,252) =
+
+  -0.8893 + 0.0000i   0.0000 +12.0832i
+   0.0000 + 0.0024i  -1.0923 + 0.0000i
+
+
+(:,:,253) =
+
+  -0.8509 + 0.0000i   0.0000 +14.8768i
+   0.0000 + 0.0047i  -1.0935 + 0.0000i
+
+
+(:,:,254) =
+
+  -0.8081 + 0.0000i   0.0000 +17.5975i
+   0.0000 + 0.0069i  -1.0872 + 0.0000i
+
+
+(:,:,255) =
+
+  -0.7609 + 0.0000i   0.0000 +20.2283i
+   0.0000 + 0.0091i  -1.0736 + 0.0000i
+
+
+(:,:,256) =
+
+  -0.7098 + 0.0000i   0.0000 +22.7528i
+   0.0000 + 0.0111i  -1.0528 + 0.0000i
+
+
+(:,:,257) =
+
+  -0.6551 + 0.0000i   0.0000 +25.1558i
+   0.0000 + 0.0131i  -1.0251 + 0.0000i
+
+
+(:,:,258) =
+
+  -0.5971 + 0.0000i   0.0000 +27.4225i
+   0.0000 + 0.0149i  -0.9908 + 0.0000i
+
+
+(:,:,259) =
+
+  -0.5360 + 0.0000i   0.0000 +29.5397i
+   0.0000 + 0.0166i  -0.9501 + 0.0000i
+
+
+(:,:,260) =
+
+  -0.4724 + 0.0000i   0.0000 +31.4946i
+   0.0000 + 0.0182i  -0.9034 + 0.0000i
+
+
+(:,:,261) =
+
+  -0.4065 + 0.0000i   0.0000 +33.2761i
+   0.0000 + 0.0197i  -0.8511 + 0.0000i
+
+
+(:,:,262) =
+
+  -0.3387 + 0.0000i   0.0000 +34.8739i
+   0.0000 + 0.0210i  -0.7936 + 0.0000i
+
+
+(:,:,263) =
+
+  -0.2694 + 0.0000i   0.0000 +36.2790i
+   0.0000 + 0.0221i  -0.7312 + 0.0000i
+
+
+(:,:,264) =
+
+  -0.1991 + 0.0000i   0.0000 +37.4836i
+   0.0000 + 0.0231i  -0.6644 + 0.0000i
+
+
+(:,:,265) =
+
+  -0.1280 + 0.0000i   0.0000 +38.4812i
+   0.0000 + 0.0240i  -0.5938 + 0.0000i
+
+
+(:,:,266) =
+
+  -0.0567 + 0.0000i   0.0000 +39.2666i
+   0.0000 + 0.0247i  -0.5196 + 0.0000i
+
+
+(:,:,267) =
+
+   0.0146 + 0.0000i   0.0000 +39.8357i
+   0.0000 + 0.0253i  -0.4424 + 0.0000i
+
+
+(:,:,268) =
+
+   0.0854 + 0.0000i   0.0000 +40.1860i
+   0.0000 + 0.0257i  -0.3628 + 0.0000i
+
+
+(:,:,269) =
+
+   0.1553 + 0.0000i   0.0000 +40.3161i
+   0.0000 + 0.0259i  -0.2811 + 0.0000i
+
+
+(:,:,270) =
+
+   0.2241 + 0.0000i   0.0000 +40.2259i
+   0.0000 + 0.0260i  -0.1980 + 0.0000i
+
+
+(:,:,271) =
+
+   0.2912 + 0.0000i   0.0000 +39.9165i
+   0.0000 + 0.0259i  -0.1138 + 0.0000i
+
+
+(:,:,272) =
+
+   0.3564 + 0.0000i   0.0000 +39.3903i
+   0.0000 + 0.0256i  -0.0291 + 0.0000i
+
+
+(:,:,273) =
+
+   0.4192 + 0.0000i   0.0000 +38.6509i
+   0.0000 + 0.0253i   0.0557 + 0.0000i
+
+
+(:,:,274) =
+
+   0.4795 + 0.0000i   0.0000 +37.7030i
+   0.0000 + 0.0247i   0.1400 + 0.0000i
+
+
+(:,:,275) =
+
+   0.5369 + 0.0000i   0.0000 +36.5526i
+   0.0000 + 0.0241i   0.2234 + 0.0000i
+
+
+(:,:,276) =
+
+   0.5910 + 0.0000i   0.0000 +35.2065i
+   0.0000 + 0.0233i   0.3055 + 0.0000i
+
+
+(:,:,277) =
+
+   0.6417 + 0.0000i   0.0000 +33.6728i
+   0.0000 + 0.0223i   0.3857 + 0.0000i
+
+
+(:,:,278) =
+
+   0.6887 + 0.0000i   0.0000 +31.9602i
+   0.0000 + 0.0213i   0.4637 + 0.0000i
+
+
+(:,:,279) =
+
+   0.7317 + 0.0000i   0.0000 +30.0787i
+   0.0000 + 0.0201i   0.5391 + 0.0000i
+
+
+(:,:,280) =
+
+   0.7706 + 0.0000i   0.0000 +28.0388i
+   0.0000 + 0.0189i   0.6115 + 0.0000i
+
+
+(:,:,281) =
+
+   0.8051 + 0.0000i   0.0000 +25.8520i
+   0.0000 + 0.0175i   0.6805 + 0.0000i
+
+
+(:,:,282) =
+
+   0.8351 + 0.0000i   0.0000 +23.5304i
+   0.0000 + 0.0160i   0.7458 + 0.0000i
+
+
+(:,:,283) =
+
+   0.8605 + 0.0000i   0.0000 +21.0866i
+   0.0000 + 0.0145i   0.8071 + 0.0000i
+
+
+(:,:,284) =
+
+   0.8812 + 0.0000i   0.0000 +18.5340i
+   0.0000 + 0.0129i   0.8641 + 0.0000i
+
+
+(:,:,285) =
+
+   0.8970 + 0.0000i   0.0000 +15.8861i
+   0.0000 + 0.0112i   0.9166 + 0.0000i
+
+
+(:,:,286) =
+
+   0.9080 + 0.0000i   0.0000 +13.1572i
+   0.0000 + 0.0095i   0.9642 + 0.0000i
+
+
+(:,:,287) =
+
+   0.9141 + 0.0000i   0.0000 +10.3615i
+   0.0000 + 0.0077i   1.0069 + 0.0000i
+
+
+(:,:,288) =
+
+   0.9152 + 0.0000i   0.0000 + 7.5138i
+   0.0000 + 0.0059i   1.0444 + 0.0000i
+
+
+(:,:,289) =
+
+   0.9115 + 0.0000i   0.0000 + 4.6288i
+   0.0000 + 0.0040i   1.0766 + 0.0000i
+
+
+(:,:,290) =
+
+   0.9029 + 0.0000i   0.0000 + 1.7214i
+   0.0000 + 0.0022i   1.1034 + 0.0000i
+
+
+(:,:,291) =
+
+   0.8895 + 0.0000i   0.0000 - 1.1938i
+   0.0000 + 0.0003i   1.1247 + 0.0000i
+
+
+(:,:,292) =
+
+   0.8714 + 0.0000i   0.0000 - 4.1018i
+   0.0000 - 0.0015i   1.1405 + 0.0000i
+
+
+(:,:,293) =
+
+   0.8487 + 0.0000i   0.0000 - 6.9881i
+   0.0000 - 0.0034i   1.1507 + 0.0000i
+
+
+(:,:,294) =
+
+   0.8215 + 0.0000i   0.0000 - 9.8383i
+   0.0000 - 0.0052i   1.1553 + 0.0000i
+
+
+(:,:,295) =
+
+   0.7900 + 0.0000i   0.0000 -12.6384i
+   0.0000 - 0.0070i   1.1545 + 0.0000i
+
+
+(:,:,296) =
+
+   0.7544 + 0.0000i   0.0000 -15.3747i
+   0.0000 - 0.0087i   1.1481 + 0.0000i
+
+
+(:,:,297) =
+
+   0.7148 + 0.0000i   0.0000 -18.0340i
+   0.0000 - 0.0104i   1.1364 + 0.0000i
+
+
+(:,:,298) =
+
+   0.6714 + 0.0000i   0.0000 -20.6033i
+   0.0000 - 0.0121i   1.1195 + 0.0000i
+
+
+(:,:,299) =
+
+   0.6246 + 0.0000i   0.0000 -23.0706i
+   0.0000 - 0.0136i   1.0974 + 0.0000i
+
+
+(:,:,300) =
+
+   0.5744 + 0.0000i   0.0000 -25.4241i
+   0.0000 - 0.0151i   1.0704 + 0.0000i
+
+
+(:,:,301) =
+
+   0.5212 + 0.0000i   0.0000 -27.6529i
+   0.0000 - 0.0166i   1.0386 + 0.0000i
+
+
+(:,:,302) =
+
+   0.4652 + 0.0000i   0.0000 -29.7466i
+   0.0000 - 0.0179i   1.0022 + 0.0000i
+
+
+(:,:,303) =
+
+   0.4067 + 0.0000i   0.0000 -31.6958i
+   0.0000 - 0.0192i   0.9615 + 0.0000i
+
+
+(:,:,304) =
+
+   0.3460 + 0.0000i   0.0000 -33.4915i
+   0.0000 - 0.0204i   0.9166 + 0.0000i
+
+
+(:,:,305) =
+
+   0.2834 + 0.0000i   0.0000 -35.1259i
+   0.0000 - 0.0215i   0.8680 + 0.0000i
+
+
+(:,:,306) =
+
+   0.2191 + 0.0000i   0.0000 -36.5917i
+   0.0000 - 0.0224i   0.8157 + 0.0000i
+
+
+(:,:,307) =
+
+   0.1534 + 0.0000i   0.0000 -37.8826i
+   0.0000 - 0.0233i   0.7602 + 0.0000i
+
+
+(:,:,308) =
+
+   0.0868 + 0.0000i   0.0000 -38.9931i
+   0.0000 - 0.0241i   0.7017 + 0.0000i
+
+
+(:,:,309) =
+
+   0.0194 + 0.0000i   0.0000 -39.9188i
+   0.0000 - 0.0247i   0.6405 + 0.0000i
+
+
+(:,:,310) =
+
+  -0.0484 + 0.0000i   0.0000 -40.6559i
+   0.0000 - 0.0253i   0.5769 + 0.0000i
+
+
+(:,:,311) =
+
+  -0.1164 + 0.0000i   0.0000 -41.2016i
+   0.0000 - 0.0257i   0.5114 + 0.0000i
+
+
+(:,:,312) =
+
+  -0.1841 + 0.0000i   0.0000 -41.5542i
+   0.0000 - 0.0260i   0.4441 + 0.0000i
+
+
+(:,:,313) =
+
+  -0.2514 + 0.0000i   0.0000 -41.7125i
+   0.0000 - 0.0262i   0.3754 + 0.0000i
+
+
+(:,:,314) =
+
+  -0.3179 + 0.0000i   0.0000 -41.6767i
+   0.0000 - 0.0263i   0.3057 + 0.0000i
+
+
+(:,:,315) =
+
+  -0.3833 + 0.0000i   0.0000 -41.4474i
+   0.0000 - 0.0263i   0.2353 + 0.0000i
+
+
+(:,:,316) =
+
+  -0.4474 + 0.0000i   0.0000 -41.0263i
+   0.0000 - 0.0262i   0.1645 + 0.0000i
+
+
+(:,:,317) =
+
+  -0.5098 + 0.0000i   0.0000 -40.4160i
+   0.0000 - 0.0259i   0.0936 + 0.0000i
+
+
+(:,:,318) =
+
+  -0.5704 + 0.0000i   0.0000 -39.6197i
+   0.0000 - 0.0256i   0.0231 + 0.0000i
+
+
+(:,:,319) =
+
+  -0.6288 + 0.0000i   0.0000 -38.6417i
+   0.0000 - 0.0251i  -0.0469 + 0.0000i
+
+
+(:,:,320) =
+
+  -0.6849 + 0.0000i   0.0000 -37.4869i
+   0.0000 - 0.0246i  -0.1160 + 0.0000i
+
+
+(:,:,321) =
+
+  -0.7383 + 0.0000i   0.0000 -36.1608i
+   0.0000 - 0.0239i  -0.1838 + 0.0000i
+
+
+(:,:,322) =
+
+  -0.7890 + 0.0000i   0.0000 -34.6699i
+   0.0000 - 0.0232i  -0.2502 + 0.0000i
+
+
+(:,:,323) =
+
+  -0.8366 + 0.0000i   0.0000 -33.0212i
+   0.0000 - 0.0223i  -0.3147 + 0.0000i
+
+
+(:,:,324) =
+
+  -0.8810 + 0.0000i   0.0000 -31.2223i
+   0.0000 - 0.0214i  -0.3772 + 0.0000i
+
+
+(:,:,325) =
+
+  -0.9220 + 0.0000i   0.0000 -29.2815i
+   0.0000 - 0.0204i  -0.4374 + 0.0000i
+
+
+(:,:,326) =
+
+  -0.9595 + 0.0000i   0.0000 -27.2076i
+   0.0000 - 0.0193i  -0.4950 + 0.0000i
+
+
+(:,:,327) =
+
+  -0.9934 + 0.0000i   0.0000 -25.0098i
+   0.0000 - 0.0181i  -0.5498 + 0.0000i
+
+
+(:,:,328) =
+
+  -1.0234 + 0.0000i   0.0000 -22.6979i
+   0.0000 - 0.0169i  -0.6016 + 0.0000i
+
+
+(:,:,329) =
+
+  -1.0495 + 0.0000i   0.0000 -20.2821i
+   0.0000 - 0.0157i  -0.6502 + 0.0000i
+
+
+(:,:,330) =
+
+  -1.0717 + 0.0000i   0.0000 -17.7728i
+   0.0000 - 0.0143i  -0.6954 + 0.0000i
+
+
+(:,:,331) =
+
+  -1.0898 + 0.0000i   0.0000 -15.1808i
+   0.0000 - 0.0130i  -0.7370 + 0.0000i
+
+
+(:,:,332) =
+
+  -1.1037 + 0.0000i   0.0000 -12.5173i
+   0.0000 - 0.0116i  -0.7750 + 0.0000i
+
+
+(:,:,333) =
+
+  -1.1136 + 0.0000i   0.0000 - 9.7935i
+   0.0000 - 0.0101i  -0.8091 + 0.0000i
+
+
+(:,:,334) =
+
+  -1.1192 + 0.0000i   0.0000 - 7.0208i
+   0.0000 - 0.0086i  -0.8393 + 0.0000i
+
+
+(:,:,335) =
+
+  -1.1207 + 0.0000i   0.0000 - 4.2108i
+   0.0000 - 0.0071i  -0.8654 + 0.0000i
+
+
+(:,:,336) =
+
+  -1.1181 + 0.0000i   0.0000 - 1.3751i
+   0.0000 - 0.0056i  -0.8875 + 0.0000i
+
+
+(:,:,337) =
+
+  -1.1113 + 0.0000i   0.0000 + 1.4746i
+   0.0000 - 0.0041i  -0.9053 + 0.0000i
+
+
+(:,:,338) =
+
+  -1.1004 + 0.0000i   0.0000 + 4.3269i
+   0.0000 - 0.0026i  -0.9190 + 0.0000i
+
+
+(:,:,339) =
+
+  -1.0855 + 0.0000i   0.0000 + 7.1701i
+   0.0000 - 0.0011i  -0.9285 + 0.0000i
+
+
+(:,:,340) =
+
+  -1.0667 + 0.0000i   0.0000 + 9.9929i
+   0.0000 + 0.0004i  -0.9337 + 0.0000i
+
+
+(:,:,341) =
+
+  -1.0441 + 0.0000i   0.0000 +12.7841i
+   0.0000 + 0.0019i  -0.9347 + 0.0000i
+
+
+(:,:,342) =
+
+  -1.0177 + 0.0000i   0.0000 +15.5327i
+   0.0000 + 0.0033i  -0.9316 + 0.0000i
+
+
+(:,:,343) =
+
+  -0.9877 + 0.0000i   0.0000 +18.2280i
+   0.0000 + 0.0048i  -0.9243 + 0.0000i
+
+
+(:,:,344) =
+
+  -0.9542 + 0.0000i   0.0000 +20.8595i
+   0.0000 + 0.0062i  -0.9130 + 0.0000i
+
+
+(:,:,345) =
+
+  -0.9174 + 0.0000i   0.0000 +23.4172i
+   0.0000 + 0.0075i  -0.8977 + 0.0000i
+
+
+(:,:,346) =
+
+  -0.8774 + 0.0000i   0.0000 +25.8913i
+   0.0000 + 0.0089i  -0.8785 + 0.0000i
+
+
+(:,:,347) =
+
+  -0.8344 + 0.0000i   0.0000 +28.2725i
+   0.0000 + 0.0101i  -0.8556 + 0.0000i
+
+
+(:,:,348) =
+
+  -0.7886 + 0.0000i   0.0000 +30.5519i
+   0.0000 + 0.0113i  -0.8290 + 0.0000i
+
+
+(:,:,349) =
+
+  -0.7401 + 0.0000i   0.0000 +32.7211i
+   0.0000 + 0.0125i  -0.7990 + 0.0000i
+
+
+(:,:,350) =
+
+  -0.6892 + 0.0000i   0.0000 +34.7722i
+   0.0000 + 0.0136i  -0.7655 + 0.0000i
+
+
+(:,:,351) =
+
+  -0.6360 + 0.0000i   0.0000 +36.6977i
+   0.0000 + 0.0146i  -0.7290 + 0.0000i
+
+
+(:,:,352) =
+
+  -0.5808 + 0.0000i   0.0000 +38.4909i
+   0.0000 + 0.0156i  -0.6894 + 0.0000i
+
+
+(:,:,353) =
+
+  -0.5238 + 0.0000i   0.0000 +40.1453i
+   0.0000 + 0.0165i  -0.6469 + 0.0000i
+
+
+(:,:,354) =
+
+  -0.4652 + 0.0000i   0.0000 +41.6552i
+   0.0000 + 0.0173i  -0.6019 + 0.0000i
+
+
+(:,:,355) =
+
+  -0.4052 + 0.0000i   0.0000 +43.0156i
+   0.0000 + 0.0180i  -0.5544 + 0.0000i
+
+
+(:,:,356) =
+
+  -0.3440 + 0.0000i   0.0000 +44.2218i
+   0.0000 + 0.0187i  -0.5047 + 0.0000i
+
+
+(:,:,357) =
+
+  -0.2820 + 0.0000i   0.0000 +45.2700i
+   0.0000 + 0.0193i  -0.4530 + 0.0000i
+
+
+(:,:,358) =
+
+  -0.2192 + 0.0000i   0.0000 +46.1567i
+   0.0000 + 0.0198i  -0.3994 + 0.0000i
+
+
+(:,:,359) =
+
+  -0.1559 + 0.0000i   0.0000 +46.8794i
+   0.0000 + 0.0202i  -0.3444 + 0.0000i
+
+
+(:,:,360) =
+
+  -0.0924 + 0.0000i   0.0000 +47.4361i
+   0.0000 + 0.0205i  -0.2879 + 0.0000i
+
+
+(:,:,361) =
+
+  -0.0290 + 0.0000i   0.0000 +47.8251i
+   0.0000 + 0.0208i  -0.2304 + 0.0000i
+
+
+(:,:,362) =
+
+   0.0343 + 0.0000i   0.0000 +48.0459i
+   0.0000 + 0.0209i  -0.1720 + 0.0000i
+
+
+(:,:,363) =
+
+   0.0971 + 0.0000i   0.0000 +48.0981i
+   0.0000 + 0.0210i  -0.1129 + 0.0000i
+
+
+(:,:,364) =
+
+   0.1593 + 0.0000i   0.0000 +47.9822i
+   0.0000 + 0.0210i  -0.0534 + 0.0000i
+
+
+(:,:,365) =
+
+   0.2206 + 0.0000i   0.0000 +47.6993i
+   0.0000 + 0.0209i   0.0063 + 0.0000i
+
+
+(:,:,366) =
+
+   0.2808 + 0.0000i   0.0000 +47.2509i
+   0.0000 + 0.0208i   0.0659 + 0.0000i
+
+
+(:,:,367) =
+
+   0.3398 + 0.0000i   0.0000 +46.6393i
+   0.0000 + 0.0205i   0.1253 + 0.0000i
+
+
+(:,:,368) =
+
+   0.3972 + 0.0000i   0.0000 +45.8673i
+   0.0000 + 0.0202i   0.1842 + 0.0000i
+
+
+(:,:,369) =
+
+   0.4530 + 0.0000i   0.0000 +44.9382i
+   0.0000 + 0.0198i   0.2424 + 0.0000i
+
+
+(:,:,370) =
+
+   0.5069 + 0.0000i   0.0000 +43.8557i
+   0.0000 + 0.0193i   0.2997 + 0.0000i
+
+
+(:,:,371) =
+
+   0.5588 + 0.0000i   0.0000 +42.6244i
+   0.0000 + 0.0188i   0.3559 + 0.0000i
+
+
+(:,:,372) =
+
+   0.6085 + 0.0000i   0.0000 +41.2490i
+   0.0000 + 0.0182i   0.4107 + 0.0000i
+
+
+(:,:,373) =
+
+   0.6559 + 0.0000i   0.0000 +39.7348i
+   0.0000 + 0.0175i   0.4641 + 0.0000i
+
+
+(:,:,374) =
+
+   0.7007 + 0.0000i   0.0000 +38.0875i
+   0.0000 + 0.0168i   0.5158 + 0.0000i
+
+
+(:,:,375) =
+
+   0.7429 + 0.0000i   0.0000 +36.3134i
+   0.0000 + 0.0160i   0.5656 + 0.0000i
+
+
+(:,:,376) =
+
+   0.7824 + 0.0000i   0.0000 +34.4190i
+   0.0000 + 0.0151i   0.6133 + 0.0000i
+
+
+(:,:,377) =
+
+   0.8190 + 0.0000i   0.0000 +32.4112i
+   0.0000 + 0.0142i   0.6589 + 0.0000i
+
+
+(:,:,378) =
+
+   0.8526 + 0.0000i   0.0000 +30.2972i
+   0.0000 + 0.0132i   0.7021 + 0.0000i
+
+
+(:,:,379) =
+
+   0.8832 + 0.0000i   0.0000 +28.0846i
+   0.0000 + 0.0122i   0.7429 + 0.0000i
+
+
+(:,:,380) =
+
+   0.9105 + 0.0000i   0.0000 +25.7812i
+   0.0000 + 0.0112i   0.7810 + 0.0000i
+
+
+(:,:,381) =
+
+   0.9347 + 0.0000i   0.0000 +23.3951i
+   0.0000 + 0.0101i   0.8165 + 0.0000i
+
+
+(:,:,382) =
+
+   0.9556 + 0.0000i   0.0000 +20.9345i
+   0.0000 + 0.0090i   0.8491 + 0.0000i
+
+
+(:,:,383) =
+
+   0.9731 + 0.0000i   0.0000 +18.4078i
+   0.0000 + 0.0079i   0.8787 + 0.0000i
+
+
+(:,:,384) =
+
+   0.9873 + 0.0000i   0.0000 +15.8238i
+   0.0000 + 0.0067i   0.9054 + 0.0000i
+
+
+(:,:,385) =
+
+   0.9981 + 0.0000i   0.0000 +13.1910i
+   0.0000 + 0.0055i   0.9290 + 0.0000i
+
+
+(:,:,386) =
+
+   1.0054 + 0.0000i   0.0000 +10.5184i
+   0.0000 + 0.0043i   0.9494 + 0.0000i
+
+
+(:,:,387) =
+
+   1.0094 + 0.0000i   0.0000 + 7.8148i
+   0.0000 + 0.0031i   0.9666 + 0.0000i
+
+
+(:,:,388) =
+
+   1.0099 + 0.0000i   0.0000 + 5.0891i
+   0.0000 + 0.0019i   0.9807 + 0.0000i
+
+
+(:,:,389) =
+
+   1.0071 + 0.0000i   0.0000 + 2.3502i
+   0.0000 + 0.0007i   0.9914 + 0.0000i
+
+
+(:,:,390) =
+
+   1.0009 + 0.0000i   0.0000 - 0.3930i
+   0.0000 - 0.0006i   0.9989 + 0.0000i
+
+
+(:,:,391) =
+
+   0.9914 + 0.0000i   0.0000 - 3.1317i
+   0.0000 - 0.0018i   1.0031 + 0.0000i
+
+
+(:,:,392) =
+
+   0.9786 + 0.0000i   0.0000 - 5.8572i
+   0.0000 - 0.0030i   1.0041 + 0.0000i
+
+
+(:,:,393) =
+
+   0.9626 + 0.0000i   0.0000 - 8.5609i
+   0.0000 - 0.0042i   1.0018 + 0.0000i
+
+
+(:,:,394) =
+
+   0.9435 + 0.0000i   0.0000 -11.2342i
+   0.0000 - 0.0053i   0.9963 + 0.0000i
+
+
+(:,:,395) =
+
+   0.9213 + 0.0000i   0.0000 -13.8689i
+   0.0000 - 0.0065i   0.9876 + 0.0000i
+
+
+(:,:,396) =
+
+   0.8962 + 0.0000i   0.0000 -16.4569i
+   0.0000 - 0.0076i   0.9757 + 0.0000i
+
+
+(:,:,397) =
+
+   0.8682 + 0.0000i   0.0000 -18.9902i
+   0.0000 - 0.0087i   0.9609 + 0.0000i
+
+
+(:,:,398) =
+
+   0.8374 + 0.0000i   0.0000 -21.4612i
+   0.0000 - 0.0098i   0.9430 + 0.0000i
+
+
+(:,:,399) =
+
+   0.8040 + 0.0000i   0.0000 -23.8625i
+   0.0000 - 0.0108i   0.9221 + 0.0000i
+
+
+(:,:,400) =
+
+   0.7680 + 0.0000i   0.0000 -26.1870i
+   0.0000 - 0.0118i   0.8985 + 0.0000i
+
+
+(:,:,401) =
+
+   0.7297 + 0.0000i   0.0000 -28.4278i
+   0.0000 - 0.0128i   0.8721 + 0.0000i
+
+Log of k0:
+  Columns 1 through 7
+
+    0.0105    0.0105    0.0104    0.0104    0.0104    0.0104    0.0104
+
+  Columns 8 through 14
+
+    0.0104    0.0103    0.0103    0.0103    0.0103    0.0103    0.0102
+
+  Columns 15 through 21
+
+    0.0102    0.0102    0.0102    0.0102    0.0102    0.0102    0.0101
+
+  Columns 22 through 28
+
+    0.0101    0.0101    0.0101    0.0101    0.0101    0.0100    0.0100
+
+  Columns 29 through 35
+
+    0.0100    0.0100    0.0100    0.0100    0.0099    0.0099    0.0099
+
+  Columns 36 through 42
+
+    0.0099    0.0099    0.0099    0.0098    0.0098    0.0098    0.0098
+
+  Columns 43 through 49
+
+    0.0098    0.0098    0.0098    0.0097    0.0097    0.0097    0.0097
+
+  Columns 50 through 56
+
+    0.0097    0.0097    0.0097    0.0096    0.0096    0.0096    0.0096
+
+  Columns 57 through 63
+
+    0.0096    0.0096    0.0095    0.0095    0.0095    0.0095    0.0095
+
+  Columns 64 through 70
+
+    0.0095    0.0095    0.0094    0.0094    0.0094    0.0094    0.0094
+
+  Columns 71 through 77
+
+    0.0094    0.0094    0.0093    0.0093    0.0093    0.0093    0.0093
+
+  Columns 78 through 84
+
+    0.0093    0.0093    0.0093    0.0092    0.0092    0.0092    0.0092
+
+  Columns 85 through 91
+
+    0.0092    0.0092    0.0092    0.0091    0.0091    0.0091    0.0091
+
+  Columns 92 through 98
+
+    0.0091    0.0091    0.0091    0.0091    0.0090    0.0090    0.0090
+
+  Columns 99 through 105
+
+    0.0090    0.0090    0.0090    0.0090    0.0090    0.0089    0.0089
+
+  Columns 106 through 112
+
+    0.0089    0.0089    0.0089    0.0089    0.0089    0.0088    0.0088
+
+  Columns 113 through 119
+
+    0.0088    0.0088    0.0088    0.0088    0.0088    0.0088    0.0088
+
+  Columns 120 through 126
+
+    0.0087    0.0087    0.0087    0.0087    0.0087    0.0087    0.0087
+
+  Columns 127 through 133
+
+    0.0087    0.0086    0.0086    0.0086    0.0086    0.0086    0.0086
+
+  Columns 134 through 140
+
+    0.0086    0.0086    0.0085    0.0085    0.0085    0.0085    0.0085
+
+  Columns 141 through 147
+
+    0.0085    0.0085    0.0085    0.0085    0.0084    0.0084    0.0084
+
+  Columns 148 through 154
+
+    0.0084    0.0084    0.0084    0.0084    0.0084    0.0084    0.0083
+
+  Columns 155 through 161
+
+    0.0083    0.0083    0.0083    0.0083    0.0083    0.0083    0.0083
+
+  Columns 162 through 168
+
+    0.0083    0.0082    0.0082    0.0082    0.0082    0.0082    0.0082
+
+  Columns 169 through 175
+
+    0.0082    0.0082    0.0082    0.0081    0.0081    0.0081    0.0081
+
+  Columns 176 through 182
+
+    0.0081    0.0081    0.0081    0.0081    0.0081    0.0081    0.0080
+
+  Columns 183 through 189
+
+    0.0080    0.0080    0.0080    0.0080    0.0080    0.0080    0.0080
+
+  Columns 190 through 196
+
+    0.0080    0.0080    0.0079    0.0079    0.0079    0.0079    0.0079
+
+  Columns 197 through 203
+
+    0.0079    0.0079    0.0079    0.0079    0.0079    0.0078    0.0078
+
+  Columns 204 through 210
+
+    0.0078    0.0078    0.0078    0.0078    0.0078    0.0078    0.0078
+
+  Columns 211 through 217
+
+    0.0078    0.0077    0.0077    0.0077    0.0077    0.0077    0.0077
+
+  Columns 218 through 224
+
+    0.0077    0.0077    0.0077    0.0077    0.0077    0.0076    0.0076
+
+  Columns 225 through 231
+
+    0.0076    0.0076    0.0076    0.0076    0.0076    0.0076    0.0076
+
+  Columns 232 through 238
+
+    0.0076    0.0076    0.0075    0.0075    0.0075    0.0075    0.0075
+
+  Columns 239 through 245
+
+    0.0075    0.0075    0.0075    0.0075    0.0075    0.0075    0.0074
+
+  Columns 246 through 252
+
+    0.0074    0.0074    0.0074    0.0074    0.0074    0.0074    0.0074
+
+  Columns 253 through 259
+
+    0.0074    0.0074    0.0074    0.0073    0.0073    0.0073    0.0073
+
+  Columns 260 through 266
+
+    0.0073    0.0073    0.0073    0.0073    0.0073    0.0073    0.0073
+
+  Columns 267 through 273
+
+    0.0073    0.0072    0.0072    0.0072    0.0072    0.0072    0.0072
+
+  Columns 274 through 280
+
+    0.0072    0.0072    0.0072    0.0072    0.0072    0.0072    0.0071
+
+  Columns 281 through 287
+
+    0.0071    0.0071    0.0071    0.0071    0.0071    0.0071    0.0071
+
+  Columns 288 through 294
+
+    0.0071    0.0071    0.0071    0.0071    0.0071    0.0070    0.0070
+
+  Columns 295 through 301
+
+    0.0070    0.0070    0.0070    0.0070    0.0070    0.0070    0.0070
+
+  Columns 302 through 308
+
+    0.0070    0.0070    0.0070    0.0070    0.0069    0.0069    0.0069
+
+  Columns 309 through 315
+
+    0.0069    0.0069    0.0069    0.0069    0.0069    0.0069    0.0069
+
+  Columns 316 through 322
+
+    0.0069    0.0069    0.0069    0.0068    0.0068    0.0068    0.0068
+
+  Columns 323 through 329
+
+    0.0068    0.0068    0.0068    0.0068    0.0068    0.0068    0.0068
+
+  Columns 330 through 336
+
+    0.0068    0.0068    0.0067    0.0067    0.0067    0.0067    0.0067
+
+  Columns 337 through 343
+
+    0.0067    0.0067    0.0067    0.0067    0.0067    0.0067    0.0067
+
+  Columns 344 through 350
+
+    0.0067    0.0067    0.0066    0.0066    0.0066    0.0066    0.0066
+
+  Columns 351 through 357
+
+    0.0066    0.0066    0.0066    0.0066    0.0066    0.0066    0.0066
+
+  Columns 358 through 364
+
+    0.0066    0.0066    0.0066    0.0065    0.0065    0.0065    0.0065
+
+  Columns 365 through 371
+
+    0.0065    0.0065    0.0065    0.0065    0.0065    0.0065    0.0065
+
+  Columns 372 through 378
+
+    0.0065    0.0065    0.0065    0.0065    0.0064    0.0064    0.0064
+
+  Columns 379 through 385
+
+    0.0064    0.0064    0.0064    0.0064    0.0064    0.0064    0.0064
+
+  Columns 386 through 392
+
+    0.0064    0.0064    0.0064    0.0064    0.0064    0.0063    0.0063
+
+  Columns 393 through 399
+
+    0.0063    0.0063    0.0063    0.0063    0.0063    0.0063    0.0063
+
+  Columns 400 through 401
+
+    0.0063    0.0063
+
+Log of kc:
+  Columns 1 through 7
+
+    0.0105    0.0105    0.0104    0.0104    0.0104    0.0104    0.0104
+
+  Columns 8 through 14
+
+    0.0104    0.0103    0.0103    0.0103    0.0103    0.0103    0.0102
+
+  Columns 15 through 21
+
+    0.0102    0.0102    0.0102    0.0102    0.0102    0.0102    0.0101
+
+  Columns 22 through 28
+
+    0.0101    0.0101    0.0101    0.0101    0.0101    0.0100    0.0100
+
+  Columns 29 through 35
+
+    0.0100    0.0100    0.0100    0.0100    0.0099    0.0099    0.0099
+
+  Columns 36 through 42
+
+    0.0099    0.0099    0.0099    0.0098    0.0098    0.0098    0.0098
+
+  Columns 43 through 49
+
+    0.0098    0.0098    0.0098    0.0097    0.0097    0.0097    0.0097
+
+  Columns 50 through 56
+
+    0.0097    0.0097    0.0097    0.0096    0.0096    0.0096    0.0096
+
+  Columns 57 through 63
+
+    0.0096    0.0096    0.0095    0.0095    0.0095    0.0095    0.0095
+
+  Columns 64 through 70
+
+    0.0095    0.0095    0.0094    0.0094    0.0094    0.0094    0.0094
+
+  Columns 71 through 77
+
+    0.0094    0.0094    0.0093    0.0093    0.0093    0.0093    0.0093
+
+  Columns 78 through 84
+
+    0.0093    0.0093    0.0093    0.0092    0.0092    0.0092    0.0092
+
+  Columns 85 through 91
+
+    0.0092    0.0092    0.0092    0.0091    0.0091    0.0091    0.0091
+
+  Columns 92 through 98
+
+    0.0091    0.0091    0.0091    0.0091    0.0090    0.0090    0.0090
+
+  Columns 99 through 105
+
+    0.0090    0.0090    0.0090    0.0090    0.0090    0.0089    0.0089
+
+  Columns 106 through 112
+
+    0.0089    0.0089    0.0089    0.0089    0.0089    0.0088    0.0088
+
+  Columns 113 through 119
+
+    0.0088    0.0088    0.0088    0.0088    0.0088    0.0088    0.0088
+
+  Columns 120 through 126
+
+    0.0087    0.0087    0.0087    0.0087    0.0087    0.0087    0.0087
+
+  Columns 127 through 133
+
+    0.0087    0.0086    0.0086    0.0086    0.0086    0.0086    0.0086
+
+  Columns 134 through 140
+
+    0.0086    0.0086    0.0085    0.0085    0.0085    0.0085    0.0085
+
+  Columns 141 through 147
+
+    0.0085    0.0085    0.0085    0.0085    0.0084    0.0084    0.0084
+
+  Columns 148 through 154
+
+    0.0084    0.0084    0.0084    0.0084    0.0084    0.0084    0.0083
+
+  Columns 155 through 161
+
+    0.0083    0.0083    0.0083    0.0083    0.0083    0.0083    0.0083
+
+  Columns 162 through 168
+
+    0.0083    0.0082    0.0082    0.0082    0.0082    0.0082    0.0082
+
+  Columns 169 through 175
+
+    0.0082    0.0082    0.0082    0.0081    0.0081    0.0081    0.0081
+
+  Columns 176 through 182
+
+    0.0081    0.0081    0.0081    0.0081    0.0081    0.0081    0.0080
+
+  Columns 183 through 189
+
+    0.0080    0.0080    0.0080    0.0080    0.0080    0.0080    0.0080
+
+  Columns 190 through 196
+
+    0.0080    0.0080    0.0079    0.0079    0.0079    0.0079    0.0079
+
+  Columns 197 through 203
+
+    0.0079    0.0079    0.0079    0.0079    0.0079    0.0078    0.0078
+
+  Columns 204 through 210
+
+    0.0078    0.0078    0.0078    0.0078    0.0078    0.0078    0.0078
+
+  Columns 211 through 217
+
+    0.0078    0.0077    0.0077    0.0077    0.0077    0.0077    0.0077
+
+  Columns 218 through 224
+
+    0.0077    0.0077    0.0077    0.0077    0.0077    0.0076    0.0076
+
+  Columns 225 through 231
+
+    0.0076    0.0076    0.0076    0.0076    0.0076    0.0076    0.0076
+
+  Columns 232 through 238
+
+    0.0076    0.0076    0.0075    0.0075    0.0075    0.0075    0.0075
+
+  Columns 239 through 245
+
+    0.0075    0.0075    0.0075    0.0075    0.0075    0.0075    0.0074
+
+  Columns 246 through 252
+
+    0.0074    0.0074    0.0074    0.0074    0.0074    0.0074    0.0074
+
+  Columns 253 through 259
+
+    0.0074    0.0074    0.0074    0.0073    0.0073    0.0073    0.0073
+
+  Columns 260 through 266
+
+    0.0073    0.0073    0.0073    0.0073    0.0073    0.0073    0.0073
+
+  Columns 267 through 273
+
+    0.0073    0.0072    0.0072    0.0072    0.0072    0.0072    0.0072
+
+  Columns 274 through 280
+
+    0.0072    0.0072    0.0072    0.0072    0.0072    0.0072    0.0071
+
+  Columns 281 through 287
+
+    0.0071    0.0071    0.0071    0.0071    0.0071    0.0071    0.0071
+
+  Columns 288 through 294
+
+    0.0071    0.0071    0.0071    0.0071    0.0071    0.0070    0.0070
+
+  Columns 295 through 301
+
+    0.0070    0.0070    0.0070    0.0070    0.0070    0.0070    0.0070
+
+  Columns 302 through 308
+
+    0.0070    0.0070    0.0070    0.0070    0.0069    0.0069    0.0069
+
+  Columns 309 through 315
+
+    0.0069    0.0069    0.0069    0.0069    0.0069    0.0069    0.0069
+
+  Columns 316 through 322
+
+    0.0069    0.0069    0.0069    0.0068    0.0068    0.0068    0.0068
+
+  Columns 323 through 329
+
+    0.0068    0.0068    0.0068    0.0068    0.0068    0.0068    0.0068
+
+  Columns 330 through 336
+
+    0.0068    0.0068    0.0067    0.0067    0.0067    0.0067    0.0067
+
+  Columns 337 through 343
+
+    0.0067    0.0067    0.0067    0.0067    0.0067    0.0067    0.0067
+
+  Columns 344 through 350
+
+    0.0067    0.0067    0.0066    0.0066    0.0066    0.0066    0.0066
+
+  Columns 351 through 357
+
+    0.0066    0.0066    0.0066    0.0066    0.0066    0.0066    0.0066
+
+  Columns 358 through 364
+
+    0.0066    0.0066    0.0066    0.0065    0.0065    0.0065    0.0065
+
+  Columns 365 through 371
+
+    0.0065    0.0065    0.0065    0.0065    0.0065    0.0065    0.0065
+
+  Columns 372 through 378
+
+    0.0065    0.0065    0.0065    0.0065    0.0064    0.0064    0.0064
+
+  Columns 379 through 385
+
+    0.0064    0.0064    0.0064    0.0064    0.0064    0.0064    0.0064
+
+  Columns 386 through 392
+
+    0.0064    0.0064    0.0064    0.0064    0.0064    0.0063    0.0063
+
+  Columns 393 through 399
+
+    0.0063    0.0063    0.0063    0.0063    0.0063    0.0063    0.0063
+
+  Columns 400 through 401
+
+    0.0063    0.0063
+
+Log of ks:
+  Columns 1 through 7
+
+    0.0105    0.0105    0.0104    0.0104    0.0104    0.0104    0.0104
+
+  Columns 8 through 14
+
+    0.0104    0.0103    0.0103    0.0103    0.0103    0.0103    0.0102
+
+  Columns 15 through 21
+
+    0.0102    0.0102    0.0102    0.0102    0.0102    0.0102    0.0101
+
+  Columns 22 through 28
+
+    0.0101    0.0101    0.0101    0.0101    0.0101    0.0100    0.0100
+
+  Columns 29 through 35
+
+    0.0100    0.0100    0.0100    0.0100    0.0099    0.0099    0.0099
+
+  Columns 36 through 42
+
+    0.0099    0.0099    0.0099    0.0098    0.0098    0.0098    0.0098
+
+  Columns 43 through 49
+
+    0.0098    0.0098    0.0098    0.0097    0.0097    0.0097    0.0097
+
+  Columns 50 through 56
+
+    0.0097    0.0097    0.0097    0.0096    0.0096    0.0096    0.0096
+
+  Columns 57 through 63
+
+    0.0096    0.0096    0.0095    0.0095    0.0095    0.0095    0.0095
+
+  Columns 64 through 70
+
+    0.0095    0.0095    0.0094    0.0094    0.0094    0.0094    0.0094
+
+  Columns 71 through 77
+
+    0.0094    0.0094    0.0093    0.0093    0.0093    0.0093    0.0093
+
+  Columns 78 through 84
+
+    0.0093    0.0093    0.0093    0.0092    0.0092    0.0092    0.0092
+
+  Columns 85 through 91
+
+    0.0092    0.0092    0.0092    0.0091    0.0091    0.0091    0.0091
+
+  Columns 92 through 98
+
+    0.0091    0.0091    0.0091    0.0091    0.0090    0.0090    0.0090
+
+  Columns 99 through 105
+
+    0.0090    0.0090    0.0090    0.0090    0.0090    0.0089    0.0089
+
+  Columns 106 through 112
+
+    0.0089    0.0089    0.0089    0.0089    0.0089    0.0088    0.0088
+
+  Columns 113 through 119
+
+    0.0088    0.0088    0.0088    0.0088    0.0088    0.0088    0.0088
+
+  Columns 120 through 126
+
+    0.0087    0.0087    0.0087    0.0087    0.0087    0.0087    0.0087
+
+  Columns 127 through 133
+
+    0.0087    0.0086    0.0086    0.0086    0.0086    0.0086    0.0086
+
+  Columns 134 through 140
+
+    0.0086    0.0086    0.0085    0.0085    0.0085    0.0085    0.0085
+
+  Columns 141 through 147
+
+    0.0085    0.0085    0.0085    0.0085    0.0084    0.0084    0.0084
+
+  Columns 148 through 154
+
+    0.0084    0.0084    0.0084    0.0084    0.0084    0.0084    0.0083
+
+  Columns 155 through 161
+
+    0.0083    0.0083    0.0083    0.0083    0.0083    0.0083    0.0083
+
+  Columns 162 through 168
+
+    0.0083    0.0082    0.0082    0.0082    0.0082    0.0082    0.0082
+
+  Columns 169 through 175
+
+    0.0082    0.0082    0.0082    0.0081    0.0081    0.0081    0.0081
+
+  Columns 176 through 182
+
+    0.0081    0.0081    0.0081    0.0081    0.0081    0.0081    0.0080
+
+  Columns 183 through 189
+
+    0.0080    0.0080    0.0080    0.0080    0.0080    0.0080    0.0080
+
+  Columns 190 through 196
+
+    0.0080    0.0080    0.0079    0.0079    0.0079    0.0079    0.0079
+
+  Columns 197 through 203
+
+    0.0079    0.0079    0.0079    0.0079    0.0079    0.0078    0.0078
+
+  Columns 204 through 210
+
+    0.0078    0.0078    0.0078    0.0078    0.0078    0.0078    0.0078
+
+  Columns 211 through 217
+
+    0.0078    0.0077    0.0077    0.0077    0.0077    0.0077    0.0077
+
+  Columns 218 through 224
+
+    0.0077    0.0077    0.0077    0.0077    0.0077    0.0076    0.0076
+
+  Columns 225 through 231
+
+    0.0076    0.0076    0.0076    0.0076    0.0076    0.0076    0.0076
+
+  Columns 232 through 238
+
+    0.0076    0.0076    0.0075    0.0075    0.0075    0.0075    0.0075
+
+  Columns 239 through 245
+
+    0.0075    0.0075    0.0075    0.0075    0.0075    0.0075    0.0074
+
+  Columns 246 through 252
+
+    0.0074    0.0074    0.0074    0.0074    0.0074    0.0074    0.0074
+
+  Columns 253 through 259
+
+    0.0074    0.0074    0.0074    0.0073    0.0073    0.0073    0.0073
+
+  Columns 260 through 266
+
+    0.0073    0.0073    0.0073    0.0073    0.0073    0.0073    0.0073
+
+  Columns 267 through 273
+
+    0.0073    0.0072    0.0072    0.0072    0.0072    0.0072    0.0072
+
+  Columns 274 through 280
+
+    0.0072    0.0072    0.0072    0.0072    0.0072    0.0072    0.0071
+
+  Columns 281 through 287
+
+    0.0071    0.0071    0.0071    0.0071    0.0071    0.0071    0.0071
+
+  Columns 288 through 294
+
+    0.0071    0.0071    0.0071    0.0071    0.0071    0.0070    0.0070
+
+  Columns 295 through 301
+
+    0.0070    0.0070    0.0070    0.0070    0.0070    0.0070    0.0070
+
+  Columns 302 through 308
+
+    0.0070    0.0070    0.0070    0.0070    0.0069    0.0069    0.0069
+
+  Columns 309 through 315
+
+    0.0069    0.0069    0.0069    0.0069    0.0069    0.0069    0.0069
+
+  Columns 316 through 322
+
+    0.0069    0.0069    0.0069    0.0068    0.0068    0.0068    0.0068
+
+  Columns 323 through 329
+
+    0.0068    0.0068    0.0068    0.0068    0.0068    0.0068    0.0068
+
+  Columns 330 through 336
+
+    0.0068    0.0068    0.0067    0.0067    0.0067    0.0067    0.0067
+
+  Columns 337 through 343
+
+    0.0067    0.0067    0.0067    0.0067    0.0067    0.0067    0.0067
+
+  Columns 344 through 350
+
+    0.0067    0.0067    0.0066    0.0066    0.0066    0.0066    0.0066
+
+  Columns 351 through 357
+
+    0.0066    0.0066    0.0066    0.0066    0.0066    0.0066    0.0066
+
+  Columns 358 through 364
+
+    0.0066    0.0066    0.0066    0.0065    0.0065    0.0065    0.0065
+
+  Columns 365 through 371
+
+    0.0065    0.0065    0.0065    0.0065    0.0065    0.0065    0.0065
+
+  Columns 372 through 378
+
+    0.0065    0.0065    0.0065    0.0065    0.0064    0.0064    0.0064
+
+  Columns 379 through 385
+
+    0.0064    0.0064    0.0064    0.0064    0.0064    0.0064    0.0064
+
+  Columns 386 through 392
+
+    0.0064    0.0064    0.0064    0.0064    0.0064    0.0063    0.0063
+
+  Columns 393 through 399
+
+    0.0063    0.0063    0.0063    0.0063    0.0063    0.0063    0.0063
+
+  Columns 400 through 401
+
+    0.0063    0.0063
+
+Log of Transmission Coefficients:
+  Columns 1 through 7
+
+    0.3432    0.3187    0.3066    0.3054    0.3148    0.3358    0.3705
+
+  Columns 8 through 14
+
+    0.4223    0.4959    0.5960    0.7225    0.8603    0.9678    0.9917
+
+  Columns 15 through 21
+
+    0.9174    0.7867    0.6512    0.5373    0.4506    0.3876    0.3433
+
+  Columns 22 through 28
+
+    0.3133    0.2948    0.2856    0.2850    0.2928    0.3095    0.3367
+
+  Columns 29 through 35
+
+    0.3767    0.4329    0.5093    0.6093    0.7314    0.8611    0.9643
+
+  Columns 36 through 42
+
+    0.9986    0.9485    0.8413    0.7189    0.6086    0.5200    0.4529
+
+  Columns 43 through 49
+
+    0.4043    0.3705    0.3488    0.3375    0.3354    0.3424    0.3590
+
+  Columns 50 through 56
+
+    0.3864    0.4269    0.4834    0.5591    0.6560    0.7710    0.8885
+
+  Columns 57 through 63
+
+    0.9759    0.9952    0.9342    0.8192    0.6903    0.5739    0.4794
+
+  Columns 64 through 70
+
+    0.4066    0.3520    0.3117    0.2825    0.2620    0.2486    0.2412
+
+  Columns 71 through 77
+
+    0.2393    0.2427    0.2516    0.2666    0.2889    0.3201    0.3627
+
+  Columns 78 through 84
+
+    0.4198    0.4950    0.5914    0.7081    0.8344    0.9431    0.9961
+
+  Columns 85 through 91
+
+    0.9704    0.8798    0.7608    0.6444    0.5452    0.4665    0.4063
+
+  Columns 92 through 98
+
+    0.3612    0.3281    0.3047    0.2892    0.2805    0.2779    0.2813
+
+  Columns 99 through 105
+
+    0.2910    0.3075    0.3321    0.3666    0.4135    0.4760    0.5572
+
+  Columns 106 through 112
+
+    0.6587    0.7756    0.8897    0.9659    0.9683    0.8910    0.7658
+
+  Columns 113 through 119
+
+    0.6326    0.5153    0.4210    0.3484    0.2932    0.2515    0.2198
+
+  Columns 120 through 126
+
+    0.1958    0.1775    0.1638    0.1536    0.1464    0.1417    0.1392
+
+  Columns 127 through 133
+
+    0.1388    0.1404    0.1441    0.1502    0.1588    0.1704    0.1858
+
+  Columns 134 through 140
+
+    0.2058    0.2318    0.2654    0.3090    0.3657    0.4388    0.5316
+
+  Columns 141 through 147
+
+    0.6449    0.7722    0.8944    0.9790    0.9965    0.9435    0.8446
+
+  Columns 148 through 154
+
+    0.7314    0.6253    0.5352    0.4623    0.4047    0.3598    0.3250
+
+  Columns 155 through 161
+
+    0.2982    0.2777    0.2624    0.2513    0.2438    0.2395    0.2379
+
+  Columns 162 through 168
+
+    0.2388    0.2422    0.2478    0.2556    0.2654    0.2772    0.2908
+
+  Columns 169 through 175
+
+    0.3057    0.3216    0.3378    0.3535    0.3677    0.3796    0.3883
+
+  Columns 176 through 182
+
+    0.3935    0.3949    0.3929    0.3881    0.3813    0.3734    0.3653
+
+  Columns 183 through 189
+
+    0.3578    0.3514    0.3467    0.3440    0.3438    0.3464    0.3522
+
+  Columns 190 through 196
+
+    0.3615    0.3748    0.3928    0.4162    0.4458    0.4829    0.5285
+
+  Columns 197 through 203
+
+    0.5835    0.6486    0.7226    0.8023    0.8798    0.9431    0.9772
+
+  Columns 204 through 210
+
+    0.9705    0.9215    0.8403    0.7427    0.6433    0.5518    0.4723
+
+  Columns 211 through 217
+
+    0.4055    0.3506    0.3057    0.2693    0.2396    0.2155    0.1958
+
+  Columns 218 through 224
+
+    0.1798    0.1667    0.1560    0.1474    0.1406    0.1352    0.1312
+
+  Columns 225 through 231
+
+    0.1285    0.1268    0.1262    0.1267    0.1282    0.1308    0.1346
+
+  Columns 232 through 238
+
+    0.1396    0.1462    0.1543    0.1644    0.1768    0.1919    0.2102
+
+  Columns 239 through 245
+
+    0.2327    0.2601    0.2936    0.3347    0.3850    0.4462    0.5197
+
+  Columns 246 through 252
+
+    0.6058    0.7024    0.8030    0.8954    0.9635    0.9925    0.9768
+
+  Columns 253 through 259
+
+    0.9231    0.8457    0.7594    0.6752    0.5990    0.5329    0.4772
+
+  Columns 260 through 266
+
+    0.4308    0.3927    0.3615    0.3362    0.3158    0.2997    0.2871
+
+  Columns 267 through 273
+
+    0.2777    0.2711    0.2671    0.2655    0.2662    0.2693    0.2748
+
+  Columns 274 through 280
+
+    0.2829    0.2936    0.3074    0.3245    0.3455    0.3709    0.4012
+
+  Columns 281 through 287
+
+    0.4374    0.4800    0.5298    0.5872    0.6517    0.7221    0.7953
+
+  Columns 288 through 294
+
+    0.8659    0.9265    0.9688    0.9856    0.9739    0.9360    0.8782
+
+  Columns 295 through 301
+
+    0.8088    0.7357    0.6643    0.5983    0.5392    0.4874    0.4428
+
+  Columns 302 through 308
+
+    0.4047    0.3722    0.3448    0.3217    0.3024    0.2862    0.2729
+
+  Columns 309 through 315
+
+    0.2620    0.2533    0.2465    0.2415    0.2383    0.2365    0.2364
+
+  Columns 316 through 322
+
+    0.2377    0.2405    0.2450    0.2511    0.2589    0.2687    0.2806
+
+  Columns 323 through 329
+
+    0.2948    0.3117    0.3316    0.3549    0.3820    0.4135    0.4498
+
+  Columns 330 through 336
+
+    0.4915    0.5388    0.5920    0.6506    0.7137    0.7791    0.8435
+
+  Columns 337 through 343
+
+    0.9024    0.9506    0.9829    0.9956    0.9875    0.9604    0.9180
+
+  Columns 344 through 350
+
+    0.8654    0.8075    0.7486    0.6915    0.6382    0.5896    0.5461
+
+  Columns 351 through 357
+
+    0.5077    0.4741    0.4450    0.4198    0.3983    0.3800    0.3647
+
+  Columns 358 through 364
+
+    0.3519    0.3416    0.3334    0.3273    0.3230    0.3206    0.3199
+
+  Columns 365 through 371
+
+    0.3210    0.3237    0.3283    0.3347    0.3430    0.3533    0.3658
+
+  Columns 372 through 378
+
+    0.3807    0.3982    0.4185    0.4418    0.4686    0.4990    0.5333
+
+  Columns 379 through 385
+
+    0.5716    0.6141    0.6605    0.7103    0.7624    0.8154    0.8669
+
+  Columns 386 through 392
+
+    0.9141    0.9538    0.9826    0.9979    0.9982    0.9835    0.9553
+
+  Columns 393 through 399
+
+    0.9162    0.8694    0.8182    0.7655    0.7134    0.6636    0.6171
+
+  Columns 400 through 401
+
+    0.5743    0.5355
+
+Log of Reflection Coefficients:
+  Columns 1 through 7
+
+    0.6568    0.6813    0.6934    0.6946    0.6852    0.6642    0.6295
+
+  Columns 8 through 14
+
+    0.5777    0.5041    0.4040    0.2775    0.1397    0.0322    0.0083
+
+  Columns 15 through 21
+
+    0.0826    0.2133    0.3488    0.4627    0.5494    0.6124    0.6567
+
+  Columns 22 through 28
+
+    0.6867    0.7052    0.7144    0.7150    0.7072    0.6905    0.6633
+
+  Columns 29 through 35
+
+    0.6233    0.5671    0.4907    0.3907    0.2686    0.1389    0.0357
+
+  Columns 36 through 42
+
+    0.0014    0.0515    0.1587    0.2811    0.3914    0.4800    0.5471
+
+  Columns 43 through 49
+
+    0.5957    0.6295    0.6512    0.6625    0.6646    0.6576    0.6410
+
+  Columns 50 through 56
+
+    0.6136    0.5731    0.5166    0.4409    0.3440    0.2290    0.1115
+
+  Columns 57 through 63
+
+    0.0241    0.0048    0.0658    0.1808    0.3097    0.4261    0.5206
+
+  Columns 64 through 70
+
+    0.5934    0.6480    0.6883    0.7175    0.7380    0.7514    0.7588
+
+  Columns 71 through 77
+
+    0.7607    0.7573    0.7484    0.7334    0.7111    0.6799    0.6373
+
+  Columns 78 through 84
+
+    0.5802    0.5050    0.4086    0.2919    0.1656    0.0569    0.0039
+
+  Columns 85 through 91
+
+    0.0296    0.1202    0.2392    0.3556    0.4548    0.5335    0.5937
+
+  Columns 92 through 98
+
+    0.6388    0.6719    0.6953    0.7108    0.7195    0.7221    0.7187
+
+  Columns 99 through 105
+
+    0.7090    0.6925    0.6679    0.6334    0.5865    0.5240    0.4428
+
+  Columns 106 through 112
+
+    0.3413    0.2244    0.1103    0.0341    0.0317    0.1090    0.2342
+
+  Columns 113 through 119
+
+    0.3674    0.4847    0.5790    0.6516    0.7068    0.7485    0.7802
+
+  Columns 120 through 126
+
+    0.8042    0.8225    0.8362    0.8464    0.8536    0.8583    0.8608
+
+  Columns 127 through 133
+
+    0.8612    0.8596    0.8559    0.8498    0.8412    0.8296    0.8142
+
+  Columns 134 through 140
+
+    0.7942    0.7682    0.7346    0.6910    0.6343    0.5612    0.4684
+
+  Columns 141 through 147
+
+    0.3551    0.2278    0.1056    0.0210    0.0035    0.0565    0.1554
+
+  Columns 148 through 154
+
+    0.2686    0.3747    0.4648    0.5377    0.5953    0.6402    0.6750
+
+  Columns 155 through 161
+
+    0.7018    0.7223    0.7376    0.7487    0.7562    0.7605    0.7621
+
+  Columns 162 through 168
+
+    0.7612    0.7578    0.7522    0.7444    0.7346    0.7228    0.7092
+
+  Columns 169 through 175
+
+    0.6943    0.6784    0.6622    0.6465    0.6323    0.6204    0.6117
+
+  Columns 176 through 182
+
+    0.6065    0.6051    0.6071    0.6119    0.6187    0.6266    0.6347
+
+  Columns 183 through 189
+
+    0.6422    0.6486    0.6533    0.6560    0.6562    0.6536    0.6478
+
+  Columns 190 through 196
+
+    0.6385    0.6252    0.6072    0.5838    0.5542    0.5171    0.4715
+
+  Columns 197 through 203
+
+    0.4165    0.3514    0.2774    0.1977    0.1202    0.0569    0.0228
+
+  Columns 204 through 210
+
+    0.0295    0.0785    0.1597    0.2573    0.3567    0.4482    0.5277
+
+  Columns 211 through 217
+
+    0.5945    0.6494    0.6943    0.7307    0.7604    0.7845    0.8042
+
+  Columns 218 through 224
+
+    0.8202    0.8333    0.8440    0.8526    0.8594    0.8648    0.8688
+
+  Columns 225 through 231
+
+    0.8715    0.8732    0.8738    0.8733    0.8718    0.8692    0.8654
+
+  Columns 232 through 238
+
+    0.8604    0.8538    0.8457    0.8356    0.8232    0.8081    0.7898
+
+  Columns 239 through 245
+
+    0.7673    0.7399    0.7064    0.6653    0.6150    0.5538    0.4803
+
+  Columns 246 through 252
+
+    0.3942    0.2976    0.1970    0.1046    0.0365    0.0075    0.0232
+
+  Columns 253 through 259
+
+    0.0769    0.1543    0.2406    0.3248    0.4010    0.4671    0.5228
+
+  Columns 260 through 266
+
+    0.5692    0.6073    0.6385    0.6638    0.6842    0.7003    0.7129
+
+  Columns 267 through 273
+
+    0.7223    0.7289    0.7329    0.7345    0.7338    0.7307    0.7252
+
+  Columns 274 through 280
+
+    0.7171    0.7064    0.6926    0.6755    0.6545    0.6291    0.5988
+
+  Columns 281 through 287
+
+    0.5626    0.5200    0.4702    0.4128    0.3483    0.2779    0.2047
+
+  Columns 288 through 294
+
+    0.1341    0.0735    0.0312    0.0144    0.0261    0.0640    0.1218
+
+  Columns 295 through 301
+
+    0.1912    0.2643    0.3357    0.4017    0.4608    0.5126    0.5572
+
+  Columns 302 through 308
+
+    0.5953    0.6278    0.6552    0.6783    0.6976    0.7138    0.7271
+
+  Columns 309 through 315
+
+    0.7380    0.7467    0.7535    0.7585    0.7617    0.7635    0.7636
+
+  Columns 316 through 322
+
+    0.7623    0.7595    0.7550    0.7489    0.7411    0.7313    0.7194
+
+  Columns 323 through 329
+
+    0.7052    0.6883    0.6684    0.6451    0.6180    0.5865    0.5502
+
+  Columns 330 through 336
+
+    0.5085    0.4612    0.4080    0.3494    0.2863    0.2209    0.1565
+
+  Columns 337 through 343
+
+    0.0976    0.0494    0.0171    0.0044    0.0125    0.0396    0.0820
+
+  Columns 344 through 350
+
+    0.1346    0.1925    0.2514    0.3085    0.3618    0.4104    0.4539
+
+  Columns 351 through 357
+
+    0.4923    0.5259    0.5550    0.5802    0.6017    0.6200    0.6353
+
+  Columns 358 through 364
+
+    0.6481    0.6584    0.6666    0.6727    0.6770    0.6794    0.6801
+
+  Columns 365 through 371
+
+    0.6790    0.6763    0.6717    0.6653    0.6570    0.6467    0.6342
+
+  Columns 372 through 378
+
+    0.6193    0.6018    0.5815    0.5582    0.5314    0.5010    0.4667
+
+  Columns 379 through 385
+
+    0.4284    0.3859    0.3395    0.2897    0.2376    0.1846    0.1331
+
+  Columns 386 through 392
+
+    0.0859    0.0462    0.0174    0.0021    0.0018    0.0165    0.0447
+
+  Columns 393 through 399
+
+    0.0838    0.1306    0.1818    0.2345    0.2866    0.3364    0.3829
+
+  Columns 400 through 401
+
+    0.4257    0.4645
+
+Log of Phases:
+  Columns 1 through 7
+
+    0.2152    0.1221    0.0345   -0.0509   -0.1373   -0.2276   -0.3255
+
+  Columns 8 through 14
+
+   -0.4352   -0.5621   -0.7129   -0.8951   -1.1145   -1.3689    1.4992
+
+  Columns 15 through 21
+
+    1.2333    0.9974    0.7994    0.6364    0.5012    0.3867    0.2870
+
+  Columns 22 through 28
+
+    0.1976    0.1150    0.0364   -0.0407   -0.1185   -0.1993   -0.2855
+
+  Columns 29 through 35
+
+   -0.3803   -0.4873   -0.6110   -0.7571   -0.9312   -1.1371   -1.3722
+
+  Columns 36 through 42
+
+    1.5181    1.2711    1.0468    0.8538    0.6914    0.5547    0.4379
+
+  Columns 43 through 49
+
+    0.3358    0.2442    0.1596    0.0793    0.0009   -0.0779   -0.1594
+
+  Columns 50 through 56
+
+   -0.2459   -0.3406   -0.4469   -0.5692   -0.7127   -0.8826   -1.0822
+
+  Columns 57 through 63
+
+   -1.3091   -1.5516    1.3508    1.1323    0.9433    0.7843    0.6510
+
+  Columns 64 through 70
+
+    0.5383    0.4413    0.3561    0.2796    0.2094    0.1435    0.0804
+
+  Columns 71 through 77
+
+    0.0186   -0.0432   -0.1064   -0.1722   -0.2424   -0.3189   -0.4041
+
+  Columns 78 through 84
+
+   -0.5011   -0.6136   -0.7464   -0.9043   -1.0908   -1.3051   -1.5379
+
+  Columns 85 through 91
+
+    1.3690    1.1501    0.9578    0.7944    0.6571    0.5410    0.4413
+
+  Columns 92 through 98
+
+    0.3540    0.2760    0.2046    0.1378    0.0740    0.0115   -0.0510
+
+  Columns 99 through 105
+
+   -0.1149   -0.1818   -0.2534   -0.3318   -0.4198   -0.5207   -0.6389
+
+  Columns 106 through 112
+
+   -0.7794   -0.9473   -1.1453   -1.3700    1.5334    1.3008    1.0906
+
+  Columns 113 through 119
+
+    0.9106    0.7604    0.6357    0.5314    0.4428    0.3662    0.2989
+
+  Columns 120 through 126
+
+    0.2386    0.1837    0.1329    0.0853    0.0399   -0.0040   -0.0468
+
+  Columns 127 through 133
+
+   -0.0892   -0.1317   -0.1748   -0.2190   -0.2650   -0.3134   -0.3650
+
+  Columns 134 through 140
+
+   -0.4207   -0.4818   -0.5499   -0.6267   -0.7149   -0.8177   -0.9387
+
+  Columns 141 through 147
+
+   -1.0821   -1.2512   -1.4464    1.4795    1.2558    1.0397    0.8435
+
+  Columns 148 through 154
+
+    0.6725    0.5264    0.4018    0.2945    0.2008    0.1173    0.0416
+
+  Columns 155 through 161
+
+   -0.0283   -0.0940   -0.1568   -0.2178   -0.2778   -0.3376   -0.3980
+
+  Columns 162 through 168
+
+   -0.4594   -0.5227   -0.5883   -0.6567   -0.7286   -0.8044   -0.8844
+
+  Columns 169 through 175
+
+   -0.9692   -1.0587   -1.1530   -1.2517   -1.3544   -1.4602   -1.5678
+
+  Columns 176 through 182
+
+    1.4655    1.3578    1.2521    1.1494    1.0504    0.9556    0.8651
+
+  Columns 183 through 189
+
+    0.7790    0.6970    0.6185    0.5433    0.4705    0.3997    0.3300
+
+  Columns 190 through 196
+
+    0.2608    0.1913    0.1205    0.0474   -0.0291   -0.1104   -0.1979
+
+  Columns 197 through 203
+
+   -0.2936   -0.3993   -0.5173   -0.6492   -0.7962   -0.9577   -1.1307
+
+  Columns 204 through 210
+
+   -1.3093   -1.4862    1.4873    1.3331    1.1951    1.0734    0.9668
+
+  Columns 211 through 217
+
+    0.8732    0.7908    0.7178    0.6524    0.5935    0.5398    0.4906
+
+  Columns 218 through 224
+
+    0.4450    0.4024    0.3623    0.3242    0.2879    0.2529    0.2191
+
+  Columns 225 through 231
+
+    0.1860    0.1536    0.1215    0.0896    0.0577    0.0255   -0.0072
+
+  Columns 232 through 238
+
+   -0.0406   -0.0750   -0.1107   -0.1480   -0.1873   -0.2290   -0.2737
+
+  Columns 239 through 245
+
+   -0.3221   -0.3749   -0.4331   -0.4979   -0.5706   -0.6530   -0.7468
+
+  Columns 246 through 252
+
+   -0.8541   -0.9765   -1.1149   -1.2685   -1.4339    1.5364    1.3668
+
+  Columns 253 through 259
+
+    1.2057    1.0581    0.9262    0.8099    0.7078    0.6182    0.5390
+
+  Columns 260 through 266
+
+    0.4685    0.4050    0.3473    0.2943    0.2451    0.1989    0.1550
+
+  Columns 267 through 273
+
+    0.1130    0.0723    0.0325   -0.0067   -0.0458   -0.0850   -0.1248
+
+  Columns 274 through 280
+
+   -0.1655   -0.2075   -0.2512   -0.2970   -0.3455   -0.3973   -0.4531
+
+  Columns 281 through 287
+
+   -0.5135   -0.5796   -0.6522   -0.7324   -0.8213   -0.9198   -1.0285
+
+  Columns 288 through 294
+
+   -1.1475   -1.2758   -1.4115   -1.5513    1.4502    1.3137    1.1843
+
+  Columns 295 through 301
+
+    1.0642    0.9543    0.8548    0.7651    0.6844    0.6116    0.5456
+
+  Columns 302 through 308
+
+    0.4856    0.4306    0.3798    0.3326    0.2885    0.2469    0.2074
+
+  Columns 309 through 315
+
+    0.1697    0.1334    0.0982    0.0639    0.0303   -0.0030   -0.0360
+
+  Columns 316 through 322
+
+   -0.0690   -0.1022   -0.1359   -0.1701   -0.2052   -0.2413   -0.2788
+
+  Columns 323 through 329
+
+   -0.3179   -0.3589   -0.4022   -0.4481   -0.4971   -0.5497   -0.6065
+
+  Columns 330 through 336
+
+   -0.6680   -0.7349   -0.8078   -0.8874   -0.9742   -1.0686   -1.1705
+
+  Columns 337 through 343
+
+   -1.2794   -1.3942   -1.5131    1.5076    1.3873    1.2701    1.1579
+
+  Columns 344 through 350
+
+    1.0521    0.9537    0.8627    0.7792    0.7025    0.6322    0.5675
+
+  Columns 351 through 357
+
+    0.5079    0.4526    0.4012    0.3530    0.3076    0.2647    0.2238
+
+  Columns 358 through 364
+
+    0.1845    0.1467    0.1100    0.0743    0.0391    0.0045   -0.0300
+
+  Columns 365 through 371
+
+   -0.0643   -0.0988   -0.1336   -0.1690   -0.2051   -0.2421   -0.2803
+
+  Columns 372 through 378
+
+   -0.3199   -0.3612   -0.4044   -0.4499   -0.4981   -0.5492   -0.6037
+
+  Columns 379 through 385
+
+   -0.6620   -0.7246   -0.7918   -0.8640   -0.9416   -1.0246   -1.1132
+
+  Columns 386 through 392
+
+   -1.2069   -1.3051   -1.4068   -1.5108    1.5261    1.4222    1.3208
+
+  Columns 393 through 399
+
+    1.2230    1.1298    1.0419    0.9595    0.8827    0.8113    0.7450
+
+  Columns 400 through 401
+
+    0.6834    0.6262
+
+</pre>
+<p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2024a</a>
+<br>
+</p>
+</div>
+<!--
+##### SOURCE BEGIN #####
+%% Multilayer Bragg Reflector Program
+
+% Benchmarking an older model in an attempt to rewrite this software in
+% Python and RCWA alternatives. The code was written in a "add-hoc" manner
+% such that there is little-to-no-readability in the original. This program
+% serves to fix this problem and then benchmark against the alternatives.
+
+% Clear all previous data
+clear all;
+%% Initial Parameters
+
+% Here we set the initial parameters for the simulation, this includes the
+% refractive indices of the surrounding layers. This includes the cladding
+% index, the substrate index, and the effective index of the Bragg Mirror
+% pairs. Given that we are going to work layer-by-layer, it is fair to
+% assume that the effective index is 0. We can also set the cladding and
+% substrate layers to air, if we wish, with an index of 1. We can also se
+% the number of mirror pairs and even set the cavity wavelength that we
+% want to achieve so that we can get the layer thicknesses. Here, the first
+% refractive index (n_first) is that of the first layer of the pair, and
+% the second refractive index (n_second) is that of the second layer of the
+% pair. Note that the cavity refractive index (n_cavity) can be different.
+% We will also set the cavity layer index, this is the layer at which the
+% cavity occurs.
+
+n_cladding = 1.0;
+n_substrate = 1.0;
+n_effective = 0.0;
+number_mirror_pairs = 14;
+cavity_wavelength = 750;
+n_first = 3.6;
+n_second = 3.34;
+n_cavity = 3.65;
+cavity_layer = 7;
+wavelength_i = 600;
+wavelength_f = 1000;
+wavelength_s = 1;
+%% Calculations
+
+% Once we set the initial parameters, we can use the standard Bragg Mirror
+% equations to calculate the layer thicknesses that we expect to get the
+% Bragg response that we want. Note that I have included a commented-out
+% variable that allows us to set the thickness that we want too.
+
+t_first = 54;
+t_second = 58;
+t_cavity = 1000;
+%t_first = cavity_wavelength / (4 * n_first);
+%t_second = cavity_wavelength / (4 * n_second);
+%t_cavity = (cavity_wavelength / 2) / (n_cavity);
+%% Set Indices
+
+% Let's set up the index and thickness arrays for the Bragg stack. We will
+% loop through the mirror pairs and set the values for x, and x + 1, where
+% x is the first of the pair, and x + 1 is the second of the pair.
+
+% Preallocate arrays for refractive indices and thicknesses
+n = zeros(1, 2 * number_mirror_pairs);
+t = zeros(1, 2 * number_mirror_pairs);
+
+% Set the values for each layer
+for x = 1:2:(2 * number_mirror_pairs)
+    n(x) = n_first;
+    t(x) = t_first;
+    if x + 1 <= 2 * number_mirror_pairs
+        n(x + 1) = n_second;
+        t(x + 1) = t_second;
+    end
+end
+
+% Set the cavity layer
+n(cavity_layer) = n_cavity;
+t(cavity_layer) = t_cavity;
+%% Loop Wavelengths and Calculate Matrix
+
+% The crux of this simulation is the transfer matrix calculation at each
+% layer interface for the entire wavelength range. Log the variables we
+% care about so we can see what's going on with the code.
+
+% Number of iterations for wavelength range
+number_iterations = (wavelength_f - wavelength_i) / wavelength_s + 1;
+matrix_size = [2, 2];
+
+% Preallocate logs
+log_matrix = zeros(matrix_size(1), matrix_size(2), number_iterations);
+log_k0 = zeros(1, number_iterations);
+log_kc = zeros(1, number_iterations);
+log_ks = zeros(1, number_iterations);
+log_T = zeros(1, number_iterations);
+log_R = zeros(1, number_iterations);
+log_P = zeros(1, number_iterations);
+wavelength = zeros(1, number_iterations);
+
+% Loop over wavelengths
+for m = 1:number_iterations
+    lambda = wavelength_i + (wavelength_s * (m - 1));
+    wavelength(m) = lambda;
+    k0 = 2 * pi / lambda;
+    log_k0(m) = k0;
+    M0 = eye(2);  % Initialize M0 as the identity matrix
+    for x = 1:length(n)
+        refractive_index = n(x)^2 - n_effective^2;
+        kappa = k0 * sqrt(refractive_index);
+        kappa_t = kappa * t(x);
+        M = [cos(kappa_t), 1i * sin(kappa_t) / kappa; 1i * kappa * sin(kappa_t), cos(kappa_t)];
+        M0 = M0 * M;
+    end
+    log_matrix(:, :, m) = M0;
+    kc = k0 * sqrt(n_cladding^2 - n_effective^2);
+    log_kc(m) = kc;
+    ks = k0 * sqrt(n_substrate^2 - n_effective^2);
+    log_ks(m) = ks;
+    transmission = 2 * ks / (ks * M0(1, 1) + kc * M0(2, 2) + ks * kc * M0(1, 2) + M0(2, 1));
+    reflection = (ks * M0(1, 1) - kc * M0(2, 2) + ks * kc * M0(1, 2) - M0(2, 1)) * transmission / (2 * ks);
+    phase = atan(real(transmission) / imag(transmission));
+    T = abs(transmission)^2;
+    log_T(m) = T;
+    R = abs(reflection)^2;
+    log_R(m) = R;
+    log_P(m) = phase;
+end
+%% Plot Output
+
+figure('Position', [100, 100, 1200, 1800]);  % [left, bottom, width, height]
+
+% Plot Reflection
+subplot(3, 1, 1);
+plot(wavelength, log_R, 'LineWidth', 1.5);
+title('Reflection Spectrum');
+xlim([wavelength_i, wavelength_f]);
+ylim([0, 1]);
+legend_string = sprintf('t_{first} = %.2f nm, t_{second} = %.2f nm, t_{cavity} = %.2f nm', t_first, t_second, t_cavity);
+legend(legend_string, 'Location', 'Best');
+xlabel('Wavelength [nm]');
+ylabel('Reflection [au]');
+grid on;
+set(gca, 'FontSize', 12);
+
+% Plot Transmission
+subplot(3, 1, 2);
+plot(wavelength, log_T, 'LineWidth', 1.5);
+title('Transmission Spectrum');
+xlim([wavelength_i, wavelength_f]);
+ylim([0, 1]);
+xlabel('Wavelength [nm]');
+ylabel('Transmission [au]');
+grid on;
+set(gca, 'FontSize', 12);
+
+% Plot Phase
+subplot(3, 1, 3);
+plot(wavelength, log_P, 'LineWidth', 1.5);
+title('Phase Spectrum');
+xlim([wavelength_i, wavelength_f]);
+xlabel('Wavelength [nm]');
+ylabel('Phase [radians]');
+grid on;
+set(gca, 'FontSize', 12);
+
+% Save the figure
+save_path = 'C:\Users\jm1261\Documents\Github\Optical_Simulations\Distributed_Bragg_Reflector\Results\';
+filename = sprintf('%sDBR_Cavity_t%.2fnm_t1%.2fnm_t2%.2fnm_MATLAB.png', save_path, t_cavity, t_first, t_second);
+saveas(gcf, filename);
+%% Output Logs to Text File
+% Specify the text file paths
+matrix_log_filename = sprintf('%sDBR_Cavity_t%.2fnm_t1%.2fnm_t2%.2fnm_MATLAB_matrix_log.txt', save_path, t_cavity, t_first, t_second);
+other_log_filename = sprintf('%sDBR_Cavity_t%.2fnm_t1%.2fnm_t2%.2fnm_MATLAB_other_log.txt', save_path, t_cavity, t_first, t_second);
+
+% Open the matrix log text file for writing
+matrix_log_fileID = fopen(matrix_log_filename, 'w');
+
+% Write the logs of transfer matrices to the matrix log file
+for m = 1:number_iterations
+    fprintf(matrix_log_fileID, 'Wavelength: %.2f nm\n', wavelength(m));
+    fprintf(matrix_log_fileID, 'Matrix:\n');
+    fprintf(matrix_log_fileID, '%.6f + %.6fi %.6f + %.6fi\n', real(log_matrix(1,1,m)), imag(log_matrix(1,1,m)), real(log_matrix(1,2,m)), imag(log_matrix(1,2,m)));
+    fprintf(matrix_log_fileID, '%.6f + %.6fi %.6f + %.6fi\n\n', real(log_matrix(2,1,m)), imag(log_matrix(2,1,m)), real(log_matrix(2,2,m)), imag(log_matrix(2,2,m)));
+end
+
+% Close the matrix log text file
+fclose(matrix_log_fileID);
+
+% Open the other log text file for writing
+other_log_fileID = fopen(other_log_filename, 'w');
+
+% Write the logs of other parameters to the other log file
+fprintf(other_log_fileID, 'Wavelength\tLog of k0\tLog of kc\tLog of ks\tLog of Transmission Coefficients\tLog of Reflection Coefficients\tLog of Phases\n');
+for m = 1:number_iterations
+    fprintf(other_log_fileID, '%.2f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\n', wavelength(m), log_k0(m), log_kc(m), log_ks(m), log_T(m), log_R(m), log_P(m));
+end
+
+% Close the other log text file
+fclose(other_log_fileID);
+%% Output Logs
+
+% Display logs for verification
+disp('Log of Transfer Matrices:');
+disp(log_matrix);
+disp('Log of k0:');
+disp(log_k0);
+disp('Log of kc:');
+disp(log_kc);
+disp('Log of ks:');
+disp(log_ks);
+disp('Log of Transmission Coefficients:');
+disp(log_T);
+disp('Log of Reflection Coefficients:');
+disp(log_R);
+disp('Log of Phases:');
+disp(log_P);
+##### SOURCE END #####
+-->
+</body>
+</html>
