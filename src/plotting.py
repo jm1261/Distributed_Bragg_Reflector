@@ -433,6 +433,7 @@ def stack_plots(stack_n : list,
         fontweight='bold')
     ax2.xaxis.set_minor_locator(AutoMinorLocator())
     ax2.yaxis.set_minor_locator(AutoMinorLocator())
+    ax2.set_yscale('log')
     fig.tight_layout()
     plt.savefig(
         out_path,

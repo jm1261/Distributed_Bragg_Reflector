@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import src.dataIO as io
 import src.filepaths as fp
@@ -9,6 +10,7 @@ from pathlib import Path
 
 def distributed_bragg_reflector(simulation_parameters : dict,
                                 out_path : str,
+                                file_stem : str,
                                 plot_dict : dict) -> None:
     """
     Function Details
@@ -58,8 +60,8 @@ def distributed_bragg_reflector(simulation_parameters : dict,
                 "axis_fontsize": font size for axis labels,\n
                 "label_size": size for tick labels
             }
-    out_path: string
-        Path to save directory.
+    file_stem, out_path: string
+        File stem for saving. Path to save directory.
 
     Returns
     -------
@@ -89,8 +91,7 @@ def distributed_bragg_reflector(simulation_parameters : dict,
     Created.
 
     """
-    file_stem = "DBR_Cavity_Python"
-    graph_file = Path(f'{out_path}/{file_stem}_Test4.png')
+    graph_file = Path(f'{out_path}/{file_stem}.png')
 
     n, t, layers = anal.create_Bragg_stacks(
         first_index=simulation_parameters["first_n"],
@@ -108,7 +109,7 @@ def distributed_bragg_reflector(simulation_parameters : dict,
         stack_n=n,
         stack_t=t,
         plot_dict=plot_dict,
-        out_path=Path(f'{out_path}/{file_stem}_IndexTest.png'))
+        out_path=Path(f'{out_path}/{file_stem}_IndexThickness.png'))
 
     wavelength_range = np.arange(
         simulation_parameters["wavelength_i"],
@@ -137,24 +138,46 @@ def distributed_bragg_reflector(simulation_parameters : dict,
 
 
 if __name__ == '__main__':
-
     """ Organisation """
     root = Path(f'{Path().absolute()}/Distributed_Bragg_Reflector')
-    results_path = Path(f'{root}/Results')
+    results_path = Path(f'K://Josh/Post_Doc/Python/DBR')
     plot_dict = io.load_json(
         file_path=Path(f'{root}/Plot_Dict.json'))
     sim_params = io.load_json(
         file_path=Path(f'{root}/Simulation_Parameters.json'))
 
-    """ Outputs """
-    out_path = Path(
-        f'{results_path}/'
-        f'nc_{sim_params["cavity_n"]}_'
-        f'n1_{sim_params["first_n"]}_'
-        f'n2_{sim_params["second_n"]}')
-    fp.check_dir_exists(dir_path=out_path)
+    if sim_params["loop"] == "mirror_pairs":
+        """ Outputs """
+        out_path = Path(
+            f'{results_path}/'
+            f'n0_{sim_params["cladding_n"]}_'
+            f'nc_{sim_params["cavity_n"]}_'
+            f'n1_{sim_params["first_n"]}_'
+            f'n2_{sim_params["second_n"]}_'
+            f'ns_{sim_params["substrate_n"]}_'
+            f'MirrorPairsLoop')
+        fp.check_dir_exists(dir_path=out_path)
 
-    """ Run Sim """
-    distributed_bragg_reflector(
-        simulation_parameters=sim_params,
-        out_path=out_path)
+        """ Calculate Layer Thicknesses """
+
+        """ Simulation Adjustments """
+        mirror_pairs_range = range(10, 11, 10)
+        cavity_position = "Middle"
+
+        for pairs in mirror_pairs_range:
+            sim_params["number_of_pairs"] = pairs
+
+            if cavity_position == 'Middle':
+                if sim_params["symmetrical"] == "True":
+                    sim_params["cavity_index"] = pairs
+                    sim_params["extra_layer"] = "True"
+                else:
+                    sim_params["cavity_index"] = pairs + 1
+
+            """ Run Simulation """
+            file_stem = f'DBR_Cavity_Python_MirrorPairs_{pairs}'
+            distributed_bragg_reflector(
+                simulation_parameters=sim_params,
+                out_path=out_path,
+                file_stem=file_stem,
+                plot_dict=plot_dict)
