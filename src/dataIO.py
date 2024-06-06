@@ -1,4 +1,5 @@
 import json
+import numpy as np
 
 
 def load_json(file_path: str) -> dict:
@@ -115,3 +116,54 @@ def save_json_dicts(out_path: str,
             indent=4,
             default=convert)
         outfile.write('\n')
+
+
+def DBR_log_out(out_path : str,
+                data : list):
+    """
+    Function Details
+    ================
+    Save log data out of the simulation.
+
+    Parameters
+    ----------
+    out_path: str
+        Path to save.
+    data: list
+        Data array to save, list of lists [[], [], []]
+
+    Returns
+    -------
+    None.
+
+    See Also
+    --------
+    None.
+
+    Notes
+    -----
+    None.
+
+    Example
+    -------
+    None.
+
+    ----------------------------------------------------------------------------
+    Update History
+    ==============
+
+    29/05/2024
+    ----------
+    Created.
+
+    """
+    header_string = (
+        f'Wavelength [nm]\tk0\tkc\tks\t'
+        f'Transmission Coefficient\tReflection Coefficient\tPhase Coefficient')
+    formatted_data = np.array(data)
+    np.savetxt(
+        out_path,
+        formatted_data,
+        header=header_string,
+        delimiter='\t',
+        fmt='%e')
