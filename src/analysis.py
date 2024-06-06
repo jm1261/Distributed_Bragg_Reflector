@@ -168,7 +168,8 @@ def create_Bragg_stacks(first_index : float,
                         cavity_thickness : float,
                         number_of_pairs : int,
                         symmetry : str,
-                        extra_layer : str) -> tuple:
+                        extra_layer : str,
+                        cavity=False) -> tuple:
     """
     Function Details
     ================
@@ -193,6 +194,8 @@ def create_Bragg_stacks(first_index : float,
         layer, else will insert first, second, cavity, first, second, etc. If
         "True" will add an extra mirror pair layer (singular) underneath the
         final mirror pair to ensure symmetry.
+    cavity: boolean
+        If true, includes a cavity in the layer stack.
 
     Returns
     -------
@@ -222,17 +225,23 @@ def create_Bragg_stacks(first_index : float,
     ----------
     Created from previous script.
 
+    04/06/2024
+    ----------
+    Added the option to build Bragg stack with or without a cavity, allowing the
+    user to build a Bragg reflector or just a mirror stack.
+
     """
     n = [first_index, second_index] * number_of_pairs
     t = [first_thickness, second_thickness] * number_of_pairs
-    if symmetry == "True":
-        n[cavity_location] = cavity_index
-        t[cavity_location] = cavity_thickness
-    else:
-        n[cavity_location] = cavity_index
-        t[cavity_location] = cavity_thickness / 2
-        n[cavity_location + 1] = cavity_index
-        t[cavity_location + 1] = cavity_thickness / 2
+    if cavity:
+        if symmetry == "True":
+            n[cavity_location] = cavity_index
+            t[cavity_location] = cavity_thickness
+        else:
+            n[cavity_location] = cavity_index
+            t[cavity_location] = cavity_thickness / 2
+            n[cavity_location + 1] = cavity_index
+            t[cavity_location + 1] = cavity_thickness / 2
     if extra_layer == "True":
         n.append(first_index)
         t.append(first_thickness)

@@ -149,42 +149,29 @@ if __name__ == '__main__':
     sim_params = io.load_json(
         file_path=Path(f'{root}/Simulation_Parameters.json'))
 
-    if sim_params["loop"] == "mirror_pairs":
-        """ Outputs """
-        out_path = Path(
-            f'{results_path}/'
-            f'n0_{sim_params["cladding_n"]}_'
-            f'nc_{sim_params["cavity_n"]}_'
-            f'n1_{sim_params["first_n"]}_'
-            f'n2_{sim_params["second_n"]}_'
-            f'ns_{sim_params["substrate_n"]}_'
-            f'MirrorPairsLoop')
-        fp.check_dir_exists(dir_path=out_path)
+    """ Outputs """
+    out_path = Path(
+        f'{results_path}/'
+        f'n0_{sim_params["cladding_n"]}_'
+        f'nc_{sim_params["cavity_n"]}_'
+        f'n1_{sim_params["first_n"]}_'
+        f'n2_{sim_params["second_n"]}_'
+        f'ns_{sim_params["substrate_n"]}_'
+        f'MirrorPairs')
+    fp.check_dir_exists(dir_path=out_path)
 
-    if sim_params["loop"] == "cavity_thickness":
-        """ Outputs """
-        out_path = Path(
-            f'{results_path}/'
-            f'n0_{sim_params["cladding_n"]}_'
-            f'nc_{sim_params["cavity_n"]}_'
-            f'n1_{sim_params["first_n"]}_'
-            f'n2_{sim_params["second_n"]}_'
-            f'ns_{sim_params["substrate_n"]}_'
-            f'CavityThicknessLoop')
-        fp.check_dir_exists(dir_path=out_path)
+    """ Mirror Pairs """
+    mirror_pair_range = range(1, 21, 1)
 
-        """ Loop Parameters """
-        cavity_thickness_range = range(5000, 75001, 5000)
+    for pairs in mirror_pair_range:
+        """ Update Simulation Params"""
+        sim_params["number_of_pairs"] = pairs
 
-        """ Loop """
-        for thickness in cavity_thickness_range:
-            sim_params["cavity_t"] = thickness
-
-            """ Run Sim """
-            file_stem = f'DBR_Python_CavityThickness_{thickness}'
-            distributed_Bragg_reflector(
-                simulation_parameters=sim_params,
-                out_path=out_path,
-                file_stem=file_stem,
-                plot_dict=plot_dict,
-                cavity=True)
+        """ Run Simulation """
+        file_stem = f'Bragg_Mirror_Python_MirrorPairs_{pairs}'
+        distributed_Bragg_reflector(
+            simulation_parameters=sim_params,
+            out_path=out_path,
+            file_stem=file_stem,
+            plot_dict=plot_dict,
+            cavity=False)

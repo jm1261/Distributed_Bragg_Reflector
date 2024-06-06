@@ -7,9 +7,11 @@ import src.plotting as plot
 from pathlib import Path
 
 
-def distributed_bragg_reflector(simulation_parameters : dict,
+def distributed_Bragg_reflector(simulation_parameters : dict,
                                 out_path : str,
-                                plot_dict : dict) -> None:
+                                file_stem : str,
+                                plot_dict : dict,
+                                cavity=False) -> None:
     """
     Function Details
     ================
@@ -58,8 +60,10 @@ def distributed_bragg_reflector(simulation_parameters : dict,
                 "axis_fontsize": font size for axis labels,\n
                 "label_size": size for tick labels
             }
-    out_path: string
-        Path to save directory.
+    file_stem, out_path: string
+        File stem for saving. Path to save directory.
+    cavity: boolean
+        If True, inserts a cavity into the Bragg stack.
 
     Returns
     -------
@@ -89,8 +93,7 @@ def distributed_bragg_reflector(simulation_parameters : dict,
     Created.
 
     """
-    file_stem = "DBR_Cavity_Python"
-    graph_file = Path(f'{out_path}/{file_stem}_Test4.png')
+    graph_file = Path(f'{out_path}/{file_stem}.png')
 
     n, t, layers = anal.create_Bragg_stacks(
         first_index=simulation_parameters["first_n"],
@@ -102,13 +105,14 @@ def distributed_bragg_reflector(simulation_parameters : dict,
         cavity_thickness=simulation_parameters["cavity_t"],
         number_of_pairs=simulation_parameters["number_of_pairs"],
         symmetry=simulation_parameters["symmetrical"],
-        extra_layer=simulation_parameters["extra_layer"])
+        extra_layer=simulation_parameters["extra_layer"],
+        cavity=cavity)
 
     plot.stack_plots(
         stack_n=n,
         stack_t=t,
         plot_dict=plot_dict,
-        out_path=Path(f'{out_path}/{file_stem}_IndexTest.png'))
+        out_path=Path(f'{out_path}/{file_stem}_IndexThickness.png'))
 
     wavelength_range = np.arange(
         simulation_parameters["wavelength_i"],
@@ -155,6 +159,7 @@ if __name__ == '__main__':
     fp.check_dir_exists(dir_path=out_path)
 
     """ Run Sim """
-    distributed_bragg_reflector(
+    distributed_Bragg_reflector(
         simulation_parameters=sim_params,
-        out_path=out_path)
+        out_path=out_path,
+        cavity=True)
